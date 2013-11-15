@@ -274,7 +274,7 @@ int dsi_parse_vreg(struct device *dev, struct dss_module_power *mp,
 	if (!dev || !mp) {
 		pr_err("%s: invalid input\n", __func__);
 		rc = -EINVAL;
-		goto error;
+		return rc;
 	}
 
 	if (node)
