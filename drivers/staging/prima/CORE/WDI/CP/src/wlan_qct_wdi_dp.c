@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -59,6 +59,9 @@
   Are listed for each API below.
 
 
+  Copyright (c) 2010 QUALCOMM Incorporated.
+  All Rights Reserved.
+  Qualcomm Confidential and Proprietary
 ===========================================================================*/
 
 /*===========================================================================
@@ -393,10 +396,9 @@ WDI_FillTxBd
     wpt_uint8*             pTid, 
     wpt_uint8              ucDisableFrmXtl, 
     void*                  pTxBd, 
-    wpt_uint32             ucTxFlag,
+    wpt_uint8              ucTxFlag, 
     wpt_uint8              ucProtMgmtFrame,
     wpt_uint32             uTimeStamp,
-    wpt_uint8              isEapol,
     wpt_uint8*             staIndex
 )
 {
@@ -422,7 +424,7 @@ WDI_FillTxBd
     ucSubType = (ucTypeSubtype & WDI_FRAME_SUBTYPE_MASK);
 
     WPAL_TRACE( eWLAN_MODULE_DAL_CTRL, eWLAN_PAL_TRACE_LEVEL_WARN, 
-               "Type: %d/%d, MAC S: %08x. MAC D: %08x., Tid=%d, frmXlat=%d, pTxBD=%08x ucTxFlag 0x%X",
+               "Type: %d/%d, MAC S: %08x. MAC D: %08x., Tid=%d, frmXlat=%d, pTxBD=%08x ucTxFlag 0x%X\n", 
                 ucType, ucSubType, 
                 *((wpt_uint32 *) pAddr2), 
                *((wpt_uint32 *) pDestMacAddr), 
@@ -467,17 +469,6 @@ WDI_FillTxBd
         pBd->dpuRF = BMUWQ_BTQM_TX_MGMT; 
     }
 
-    if (ucTxFlag & WDI_USE_FW_IN_TX_PATH)
-    {
-        WPAL_TRACE( eWLAN_MODULE_DAL_CTRL, eWLAN_PAL_TRACE_LEVEL_INFO,
-          "iType: %d SubType %d, MAC S: %08x. MAC D: %08x., Tid=%d",
-                    ucType, ucSubType,
-                    *((wpt_uint32 *) pAddr2),
-                   *((wpt_uint32 *) pDestMacAddr),
-                    ucTid);
-
-        pBd->dpuRF = BMUWQ_FW_DPU_TX;
-    }
 
     pBd->tid           = ucTid; 
     // Clear the reserved field as this field is used for defining special 
@@ -560,6 +551,12 @@ WDI_FillTxBd
            pBd->bdRate = WDI_BDRATE_CTRL_FRAME;
         }
 #endif
+        if(ucTxFlag & WDI_USE_BD_RATE_MASK)
+        {
+            pBd->bdRate = WDI_BDRATE_BCDATA_FRAME;
+            VOS_TRACE( VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO, "arp: %s",__func__);
+        }
+
         pBd->rmf    = WDI_RMF_DISABLED;     
 
         /* sanity: Might already be set by caller, but enforce it here again */
@@ -620,23 +617,16 @@ WDI_FillTxBd
          * Sanity: Force HW frame translation OFF for mgmt frames.
          --------------------------------------------------------------------*/
          /* apply to both ucast/mcast mgmt frames */
-         /* Probe requests are sent using BD rate */
-         if( ucSubType ==  WDI_MAC_MGMT_PROBE_REQ )
+         if (useStaRateForBcastFrames)
          {
-             pBd->bdRate = WDI_BDRATE_BCMGMT_FRAME;
+             pBd->bdRate = (ucUnicastDst)? WDI_BDRATE_BCMGMT_FRAME : WDI_TXBD_BDRATE_DEFAULT; 
          }
          else
          {
-             if (useStaRateForBcastFrames)
-             {
-                 pBd->bdRate = (ucUnicastDst)? WDI_BDRATE_BCMGMT_FRAME : WDI_TXBD_BDRATE_DEFAULT;
-             }
-             else
-             {
-                 pBd->bdRate = WDI_BDRATE_BCMGMT_FRAME;
-             }
+             pBd->bdRate = WDI_BDRATE_BCMGMT_FRAME;
          }
-         if ( ucTxFlag & WDI_USE_BD_RATE2_FOR_MANAGEMENT_FRAME)
+
+         if ( ucTxFlag & WDI_USE_BD_RATE2_FOR_MANAGEMENT_FRAME) 
          {
            pBd->bdRate = WDI_BDRATE_CTRL_FRAME;
          }
@@ -703,7 +693,7 @@ WDI_FillTxBd
                 return WDI_STATUS_E_NOT_ALLOWED;
            }
 #else
-           ucStaId = pWDICtx->ucSelfStaId;
+            ucStaId = pWDICtx->ucSelfStaId;
 #endif
         }
         else
@@ -830,9 +820,7 @@ WDI_FillTxBd
               }
               ucStaId = pBSSSes->bcastStaIdx;
            }
-         }
-
-        WPAL_TRACE(eWLAN_MODULE_DAL_DATA, eWLAN_PAL_TRACE_LEVEL_INFO,"StaId:%d and ucTxFlag:%02x", ucStaId, ucTxFlag);
+         }    
 
         pBd->staIndex = ucStaId;
         
@@ -933,12 +921,8 @@ WDI_FillTxBd
 #ifdef FEATURE_WLAN_TDLS
                   (ucSTAType == WDI_STA_ENTRY_TDLS_PEER ) &&
 #endif
-                  (ucTxFlag & WDI_TRIGGER_ENABLED_AC_MASK)) || isEapol)
+                  (ucTxFlag & WDI_TRIGGER_ENABLED_AC_MASK)))
        {
-          WPAL_TRACE(eWLAN_MODULE_DAL_DATA, eWLAN_PAL_TRACE_LEVEL_INFO,
-          "Sending EAPOL pakcet over WQ5 MAC S: %08x. MAC D: %08x.",
-                    *((wpt_uint32 *) pAddr2),
-                   *((wpt_uint32 *) pDestMacAddr));
            pBd->dpuRF = BMUWQ_FW_DPU_TX;
        }
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -153,8 +153,6 @@
 #define QWLAN_MAX_MAC_LAST_BYTE_VALUE       0xFC
 #define NV_EMBEDDED_VERSION                 0x80
 
-#define QWLAN_TXFIR_CFG_DPD_BYPASS_MASK     0x8
-
 typedef struct {
    tANI_U32 tableSize;                      /* Whole NV Table Size */
    tANI_U32 chunkSize;                      /* Current Chunk Size < 2K */
@@ -212,144 +210,7 @@ static rateStr2rateIndex_t rateName_rateIndex_tbl[] =
    { HAL_PHY_RATE_MCS_1NSS_52_MBPS,    "MCS_52_MBPS"},
    { HAL_PHY_RATE_MCS_1NSS_58_5_MBPS,  "MCS_58_5_MBPS"},
    { HAL_PHY_RATE_MCS_1NSS_65_MBPS,    "MCS_65_MBPS"},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_72_2_MBPS, "MCS_72_2_MBPS"},
-
-//MCS Index #8-15 (40MHz)
-
-   { HAL_PHY_RATE_MCS_1NSS_CB_13_5_MBPS,      "MCS_CB_13_B_MBPS" },
-   { HAL_PHY_RATE_MCS_1NSS_CB_27_MBPS,        "MCS_CB_27_MBPS" },
-   { HAL_PHY_RATE_MCS_1NSS_CB_40_5_MBPS,      "MCS_CB_40_5_MBPS" },
-   { HAL_PHY_RATE_MCS_1NSS_CB_54_MBPS,        "MCS_CB_54_MBPS"},
-   { HAL_PHY_RATE_MCS_1NSS_CB_81_MBPS,        "MCS_CB_81_MBPS"},
-   { HAL_PHY_RATE_MCS_1NSS_CB_108_MBPS,       "MCS_CB_108_MBPS"},
-   { HAL_PHY_RATE_MCS_1NSS_CB_121_5_MBPS,     "MCS_CB_121_5_MBPS"},
-   { HAL_PHY_RATE_MCS_1NSS_CB_135_MBPS,       "MCS_CB_135_MBPS"},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_15_MBPS,  "MCS_CB_15_MBPS"},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_30_MBPS,  "MCS_CB_30_MBPS"},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_45_MBPS,  "MCS_CB_45_MBPS"},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_60_MBPS,  "MCS_CB_60_MBPS"},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_90_MBPS,  "MCS_CB_90_MBPS"},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_120_MBPS, "MCS_CB_120_MBPS"},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_135_MBPS, "MCS_CB_135_MBPS"},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_150_MBPS, "MCS_CB_150_MBPS"},
-
-#ifdef WLAN_FEATURE_11AC
-    /*11AC rate 20MHZ Normal GI*/
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_6_5_MBPS, "MCS_VHT20_NGI_6_5_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_13_MBPS,  "MCS_VHT20_NGI_13_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_19_5_MBPS,"MCS_VHT20_NGI_19_5_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_26_MBPS,  "MCS_VHT20_NGI_26_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_39_MBPS,  "MCS_VHT20_NGI_39_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_52_MBPS,  "MCS_VHT20_NGI_52_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_58_5_MBPS,"MCS_VHT20_NGI_58_5_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_65_MBPS,  "MCS_VHT20_NGI_65_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_78_MBPS,  "MCS_VHT20_NGI_78_MBPS"},
-#ifdef WCN_PRONTO
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_86_5_MBPS,"MCS_VHT20_NGI_86_5_MBPS"},
-#endif
-
-    /*11AC rate 20MHZ Short GI*/
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_7_2_MBPS, "MCS_VHT20_SGI_7_2_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_14_4_MBPS,"MCS_VHT20_SGI_14_4_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_21_6_MBPS,"MCS_VHT20_SGI_21_6_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_28_8_MBPS,"MCS_VHT20_SGI_28_8_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_43_3_MBPS,"MCS_VHT20_SGI_43_3_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_57_7_MBPS,"MCS_VHT20_SGI_57_7_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_65_MBPS,  "MCS_VHT20_SGI_65_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_72_2_MBPS,"MCS_VHT20_SGI_72_2_MBPS"},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_86_6_MBPS,"MCS_VHT20_SGI_86_6_MBPS"},
-#ifdef WCN_PRONTO
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_96_1_MBPS,"MCS_VHT20_SGI_96_1_MBPS"},
-#endif
-
-    /*11AC rates 40MHZ normal GI*/
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_13_5_MBPS,
-       "MCS_VHT40_NGI_CB_13_5_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_27_MBPS,
-       "MCS_VHT40_NGI_CB_27_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_40_5_MBPS,
-       "MCS_VHT40_NGI_CB_40_5_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_54_MBPS,
-       "MCS_VHT40_NGI_CB_54_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_81_MBPS,
-       "MCS_VHT40_NGI_CB_81_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_108_MBPS,
-       "MCS_VHT40_NGI_CB_108_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_121_5_MBPS,
-       "MCS_VHT40_NGI_CB_121_5_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_135_MBPS,
-       "MCS_VHT40_NGI_CB_135_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_162_MBPS,
-       "MCS_VHT40_NGI_CB_162_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_180_MBPS,
-       "MCS_VHT40_NGI_CB_180_MBPS"},
-
-    /*11AC rates 40MHZ short GI*/
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_15_MBPS,
-       "MCS_VHT40_SGI_CB_15_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_30_MBPS,
-       "MCS_VHT40_SGI_CB_30_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_45_MBPS,
-       "MCS_VHT40_SGI_CB_45_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_60_MBPS,
-       "MCS_VHT40_SGI_CB_60_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_90_MBPS,
-       "MCS_VHT40_SGI_CB_90_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_120_MBPS,
-       "MCS_VHT40_SGI_CB_120_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_135_MBPS,
-       "MCS_VHT40_SGI_CB_135_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_150_MBPS,
-       "MCS_VHT40_SGI_CB_150_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_180_MBPS,
-       "MCS_VHT40_SGI_CB_180_MBPS"},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_200_MBPS,
-       "MCS_VHT40_SGI_CB_200_MBPS"},
-
-    /*11AC rates 80 MHZ normal GI*/
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_29_3_MBPS,
-       "MCS_VHT80_NGI_CB_29_3_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_58_5_MBPS,
-       "MCS_VHT80_NGI_CB_58_5_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_87_8_MBPS,
-       "MCS_VHT80_NGI_CB_87_8_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_117_MBPS,
-       "MCS_VHT80_NGI_CB_117_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_175_5_MBPS,
-       "MCS_VHT80_NGI_CB_175_5_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_234_MBPS,
-       "MCS_VHT80_NGI_CB_234_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_263_3_MBPS,
-       "MCS_VHT80_NGI_CB_263_3_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_292_5_MBPS,
-       "MCS_VHT80_NGI_CB_292_5_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_351_MBPS,
-       "MCS_VHT80_NGI_CB_351_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_390_MBPS,
-       "MCS_VHT80_NGI_CB_390_MBPS"},
-
-    /*11AC rates 80 MHZ short GI*/
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_32_5_MBPS,
-       "MCS_VHT80_SGI_CB_32_5_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_65_MBPS,
-       "MCS_VHT80_SGI_CB_65_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_97_5_MBPS,
-       "MCS_VHT80_SGI_CB_97_5_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_130_MBPS,
-       "MCS_VHT80_SGI_CB_130_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_195_MBPS,
-       "MCS_VHT80_SGI_CB_195_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_260_MBPS,
-       "MCS_VHT80_SGI_CB_260_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_292_5_MBPS,
-       "MCS_VHT80_SGI_CB_292_5_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_325_MBPS,
-       "MCS_VHT80_SGI_CB_325_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_390_MBPS,
-       "MCS_VHT80_SGI_CB_390_MBPS"},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_433_3_MBPS,
-       "MCS_VHT80_SGI_CB_433_3_MBPS"},
-#endif
+   { HAL_PHY_RATE_MCS_1NSS_MM_SG_72_2_MBPS, "MCS_72_2_MBPS"}
 };
 
 static rateIndex2Preamble_t rate_index_2_preamble_table[] =
@@ -374,16 +235,6 @@ static rateIndex2Preamble_t rate_index_2_preamble_table[] =
    { HAL_PHY_RATE_11A_48_MBPS,          PHYDBG_PREAMBLE_OFDM},
    { HAL_PHY_RATE_11A_54_MBPS,          PHYDBG_PREAMBLE_OFDM},
 
-   // 11A 20MHz Rates
-   { HAL_PHY_RATE_11A_DUP_6_MBPS,       PHYDBG_PREAMBLE_OFDM},
-   { HAL_PHY_RATE_11A_DUP_9_MBPS,       PHYDBG_PREAMBLE_OFDM},
-   { HAL_PHY_RATE_11A_DUP_12_MBPS,      PHYDBG_PREAMBLE_OFDM},
-   { HAL_PHY_RATE_11A_DUP_18_MBPS,      PHYDBG_PREAMBLE_OFDM},
-   { HAL_PHY_RATE_11A_DUP_24_MBPS,      PHYDBG_PREAMBLE_OFDM},
-   { HAL_PHY_RATE_11A_DUP_36_MBPS,      PHYDBG_PREAMBLE_OFDM},
-   { HAL_PHY_RATE_11A_DUP_48_MBPS,      PHYDBG_PREAMBLE_OFDM},
-   { HAL_PHY_RATE_11A_DUP_54_MBPS,      PHYDBG_PREAMBLE_OFDM},
-
    //MCS Index #0-15 (20MHz)
    { HAL_PHY_RATE_MCS_1NSS_6_5_MBPS,   PHYDBG_PREAMBLE_MIXED},
    { HAL_PHY_RATE_MCS_1NSS_13_MBPS,    PHYDBG_PREAMBLE_MIXED},
@@ -401,119 +252,7 @@ static rateIndex2Preamble_t rate_index_2_preamble_table[] =
    { HAL_PHY_RATE_MCS_1NSS_MM_SG_57_8_MBPS,PHYDBG_PREAMBLE_NOT_SUPPORTED},
    { HAL_PHY_RATE_MCS_1NSS_MM_SG_65_MBPS, PHYDBG_PREAMBLE_NOT_SUPPORTED},
    { HAL_PHY_RATE_MCS_1NSS_MM_SG_72_2_MBPS, PHYDBG_PREAMBLE_MIXED},
-
-   //MCS index (40MHz)
-   { HAL_PHY_RATE_MCS_1NSS_CB_13_5_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_MCS_1NSS_CB_27_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_MCS_1NSS_CB_40_5_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_MCS_1NSS_CB_54_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_MCS_1NSS_CB_81_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_MCS_1NSS_CB_108_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_MCS_1NSS_CB_121_5_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_MCS_1NSS_CB_135_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_15_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_30_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_45_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_60_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_90_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_120_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_135_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_MCS_1NSS_MM_SG_CB_150_MBPS, PHYDBG_PREAMBLE_MIXED},
-
-#ifdef WLAN_FEATURE_11AC
-    /*11AC rate 20MHZ Normal GI*/
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_6_5_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_13_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_19_5_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_26_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_39_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_52_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_58_5_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_65_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_78_MBPS,  PHYDBG_PREAMBLE_MIXED},
-#ifdef WCN_PRONTO
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_NGI_86_5_MBPS,PHYDBG_PREAMBLE_MIXED},
-#endif
-
-    /*11AC rate 20MHZ Short GI*/
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_7_2_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_14_4_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_21_6_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_28_8_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_43_3_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_57_7_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_65_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_72_2_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_86_6_MBPS,PHYDBG_PREAMBLE_MIXED},
-#ifdef WCN_PRONTO
-   { HAL_PHY_RATE_VHT_20MHZ_MCS_1NSS_SGI_96_1_MBPS,PHYDBG_PREAMBLE_MIXED},
-#endif
-
-    /*11AC rates 40MHZ normal GI*/
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_13_5_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_27_MBPS,   PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_40_5_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_54_MBPS,   PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_81_MBPS,   PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_108_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_121_5_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_135_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_162_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_NGI_180_MBPS,  PHYDBG_PREAMBLE_MIXED},
-
-    /*11AC rates 40MHZ short GI*/
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_15_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_30_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_45_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_60_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_90_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_120_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_135_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_150_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_180_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_40MHZ_MCS_1NSS_CB_SGI_200_MBPS,PHYDBG_PREAMBLE_MIXED},
-
-    /*11AC rates 80 MHZ normal GI*/
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_29_3_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_58_5_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_87_8_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_117_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_175_5_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_234_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_263_3_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_292_5_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_351_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_NGI_390_MBPS,  PHYDBG_PREAMBLE_MIXED},
-
-    /*11AC rates 80 MHZ short GI*/
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_32_5_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_65_MBPS,   PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_97_5_MBPS, PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_130_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_195_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_260_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_292_5_MBPS,PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_325_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_390_MBPS,  PHYDBG_PREAMBLE_MIXED},
-   { HAL_PHY_RATE_VHT_80MHZ_MCS_1NSS_CB_SGI_433_3_MBPS,PHYDBG_PREAMBLE_MIXED},
-#endif
 };
-
-static unsigned int valid_channel[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-                                       11, 12, 13, 14, 36, 40, 44, 48,
-                                       52, 56, 60, 64, 100, 104, 108,
-                                       112, 116, 120, 124, 128, 132,
-                                       136, 140, 149, 153, 157, 161,
-                                       165, 208, 212, 216, 240, 244,
-                                       248, 252, 0 };
-static unsigned int valid_channel_cb40[] = { 3, 4, 5, 6, 7, 8, 9, 10, 11, 38,
-                                             42, 46, 50, 54, 58, 62, 102, 106,
-                                             110, 114, 118, 122, 126, 130, 134,
-                                             138, 151, 155, 159, 163, 210, 214,
-                                             242, 246, 250, 0 };
-static unsigned int valid_channel_cb80[] = { 7, 42, 46, 50, 54, 58, 106, 110,
-                                             114, 118, 122, 126, 130, 134, 155,
-                                             159, 246, 0 };
 
 typedef struct
 {
@@ -523,13 +262,11 @@ typedef struct
     v_U16_t txpower;
     v_U16_t rxmode;
     v_U16_t chainSelect;
-    ePhyChanBondState cbmode;
 
 } FTM_STATUS ;
 static FTM_STATUS ftm_status;
 
 //tpAniSirGlobal pMac;
-static tPttMsgbuffer *pMsgBuf;
 
 static void _ftm_status_init(void)
 {
@@ -555,7 +292,6 @@ static void _ftm_status_init(void)
     ftm_status.txpower = 2 ;
     ftm_status.rxmode = RXMODE_ENABLE_ALL; /* macStart() enables all receive pkt types */
     ftm_status.chainSelect = FTM_CHAIN_SEL_R0_T0_ON;
-    ftm_status.cbmode = 0 ; //none channel bonding
 
     return;
 }
@@ -591,7 +327,7 @@ static v_U32_t wlan_ftm_postmsg(v_U8_t *cmd_ptr, v_U16_t cmd_len)
     if (VOS_STATUS_SUCCESS != vos_mq_post_message(
         VOS_MODULE_ID_WDA,
                                     (vos_msg_t *)&ftmMsg)) {
-        hddLog(VOS_TRACE_LEVEL_ERROR,"%s: : Failed to post Msg to HAL",__func__);
+        hddLog(VOS_TRACE_LEVEL_ERROR,"%s: : Failed to post Msg to HAL\n",__func__);
 
         return VOS_STATUS_E_FAILURE;
     }
@@ -671,10 +407,10 @@ static VOS_STATUS wlan_ftm_vos_open( v_CONTEXT_t pVosContext, v_SIZE_t hddContex
    vStatus = vos_mq_init(&gpVosContext->freeVosMq);
    if (! VOS_IS_STATUS_SUCCESS(vStatus))
    {
+
       /* Critical Error ...  Cannot proceed further */
       VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                "%s: Failed to initialize VOS free message queue %d",
-                 __func__, vStatus);
+                "%s: Failed to initialize VOS free message queue",__func__);
       VOS_ASSERT(0);
       goto err_wda_complete_event;
    }
@@ -695,7 +431,7 @@ static VOS_STATUS wlan_ftm_vos_open( v_CONTEXT_t pVosContext, v_SIZE_t hddContex
    {
       /* Critical Error ...  Cannot proceed further */
       VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                "%s: Failed to open VOS Scheduler %d", __func__, vStatus);
+                "%s: Failed to open VOS Scheduler", __func__);
       VOS_ASSERT(0);
       goto err_msg_queue;
    }
@@ -707,7 +443,7 @@ static VOS_STATUS wlan_ftm_vos_open( v_CONTEXT_t pVosContext, v_SIZE_t hddContex
    {
       /* Critical Error ...  Cannot proceed further */
       VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                "%s: Failed to open SYS module %d", __func__, vStatus);
+                "%s: Failed to open SYS module",__func__);
       VOS_ASSERT(0);
       goto err_sched_close;
    }
@@ -720,7 +456,7 @@ static VOS_STATUS wlan_ftm_vos_open( v_CONTEXT_t pVosContext, v_SIZE_t hddContex
    {
       /* Critical Error ...  Cannot proceed further */
       VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                "%s: Failed to open WDA module %d", __func__, vStatus);
+                "%s: Failed to open WDA module",__func__);
       VOS_ASSERT(0);
       goto err_sys_close;
    }
@@ -732,7 +468,7 @@ static VOS_STATUS wlan_ftm_vos_open( v_CONTEXT_t pVosContext, v_SIZE_t hddContex
      // NV module cannot be initialized, however the driver is allowed
      // to proceed
      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                "%s: Failed to initialize the NV module %d", __func__, vStatus);
+                "%s: Failed to initialize the NV module", __func__);
      goto err_wda_close;
    }
 
@@ -741,8 +477,7 @@ static VOS_STATUS wlan_ftm_vos_open( v_CONTEXT_t pVosContext, v_SIZE_t hddContex
    if (!VOS_IS_STATUS_SUCCESS(vStatus))
    {
       VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                "%s : failed to get dictionary data for NV %d",
-                 __func__, vStatus);
+                "%s : failed to get dictionary data for NV", __func__);
       goto err_wda_close;
    }
 
@@ -760,7 +495,7 @@ static VOS_STATUS wlan_ftm_vos_open( v_CONTEXT_t pVosContext, v_SIZE_t hddContex
    {
      /* Critical Error ...  Cannot proceed further */
      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-               "%s: Failed to open MAC %d", __func__, sirStatus);
+               "%s: Failed to open MAC", __func__);
      VOS_ASSERT(0);
      goto err_nv_close;
    }
@@ -771,7 +506,7 @@ static VOS_STATUS wlan_ftm_vos_open( v_CONTEXT_t pVosContext, v_SIZE_t hddContex
    {
       /* Critical Error ...  Cannot proceed further */
       VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                "%s: Failed to open SME %d", __func__, vStatus);
+                "%s: Failed to open SME",__func__);
       goto err_mac_close;
    }
    return VOS_STATUS_SUCCESS;
@@ -831,7 +566,7 @@ static VOS_STATUS wlan_ftm_vos_close( v_CONTEXT_t vosContext )
   if (!VOS_IS_STATUS_SUCCESS(vosStatus))
   {
      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-         "%s: Failed to close SME %d", __func__, vosStatus);
+         "%s: Failed to close BAL",__func__);
      VOS_ASSERT( VOS_IS_STATUS_SUCCESS( vosStatus ) );
   }
 
@@ -839,7 +574,7 @@ static VOS_STATUS wlan_ftm_vos_close( v_CONTEXT_t vosContext )
   if (!VOS_IS_STATUS_SUCCESS(vosStatus))
   {
      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-         "%s: Failed to close MAC %d", __func__, vosStatus);
+         "%s: Failed to close MAC",__func__);
      VOS_ASSERT( VOS_IS_STATUS_SUCCESS( vosStatus ) );
   }
 
@@ -849,7 +584,7 @@ static VOS_STATUS wlan_ftm_vos_close( v_CONTEXT_t vosContext )
   if (!VOS_IS_STATUS_SUCCESS(vosStatus))
   {
      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-         "%s: Failed to close NV %d", __func__, vosStatus);
+         "%s: Failed to close NV",__func__);
      VOS_ASSERT( VOS_IS_STATUS_SUCCESS( vosStatus ) );
   }
 
@@ -858,7 +593,7 @@ static VOS_STATUS wlan_ftm_vos_close( v_CONTEXT_t vosContext )
   if (!VOS_IS_STATUS_SUCCESS(vosStatus))
   {
      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-         "%s: Failed to close SYS %d", __func__, vosStatus);
+         "%s: Failed to close SYS",__func__);
      VOS_ASSERT( VOS_IS_STATUS_SUCCESS( vosStatus ) );
   }
 
@@ -866,7 +601,7 @@ static VOS_STATUS wlan_ftm_vos_close( v_CONTEXT_t vosContext )
   if (!VOS_IS_STATUS_SUCCESS(vosStatus))
   {
      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-         "%s: Failed to close WDA %d", __func__, vosStatus);
+         "%s: Failed to close WDA",__func__);
      VOS_ASSERT( VOS_IS_STATUS_SUCCESS( vosStatus ) );
   }
 
@@ -876,7 +611,7 @@ static VOS_STATUS wlan_ftm_vos_close( v_CONTEXT_t vosContext )
   if (!VOS_IS_STATUS_SUCCESS(vosStatus))
   {
      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-         "%s: Failed to destroy ProbeEvent %d", __func__, vosStatus);
+         "%s: Failed to destroy ProbeEvent",__func__);
      VOS_ASSERT( VOS_IS_STATUS_SUCCESS( vosStatus ) );
   }
 
@@ -884,7 +619,7 @@ static VOS_STATUS wlan_ftm_vos_close( v_CONTEXT_t vosContext )
   if (!VOS_IS_STATUS_SUCCESS(vosStatus))
   {
      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-         "%s: Failed to destroy wdaCompleteEvent %d", __func__, vosStatus);
+         "%s: Failed to destroy wdaCompleteEvent",__func__);
      VOS_ASSERT( VOS_IS_STATUS_SUCCESS( vosStatus ) );
   }
 
@@ -924,8 +659,7 @@ static VOS_STATUS wlan_ftm_priv_set_txifs(hdd_adapter_t *pAdapter,v_U32_t ifs)
 
     if (ifs > 100000) //max = (MSK_24 / ONE_MICROSECOND)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                    "%s:ifs value is invalid %x", __func__, ifs);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:ifs value is invalid ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
@@ -965,8 +699,7 @@ static VOS_STATUS wlan_ftm_priv_set_txpktcnt(hdd_adapter_t *pAdapter,v_U32_t cnt
 
     if (cnt > QWLAN_PHYDBG_TXPKT_CNT_CNT_MASK) //0xFFFF
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                  "%s:pktcnt value is invalid %08x", __func__, cnt);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:pktcnt value is invalid",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
@@ -993,8 +726,7 @@ static VOS_STATUS wlan_ftm_priv_set_txpktlen(hdd_adapter_t *pAdapter,v_U32_t len
 
     if (len > 4095) //4096
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:payload len is invalid %08x", __func__, len);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:payload len is invalid",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
@@ -1003,14 +735,16 @@ static VOS_STATUS wlan_ftm_priv_set_txpktlen(hdd_adapter_t *pAdapter,v_U32_t len
     return VOS_STATUS_SUCCESS;
 }
 
+/**---------------------------------------------------------------------------
+  --------------------------------------------------------------------------*/
 
 static VOS_STATUS wlan_ftm_priv_enable_chain(hdd_adapter_t *pAdapter,v_U16_t chainSelect)
 {
+    tPttMsgbuffer *pMsgBuf;
     uPttMsgs *pMsgBody;
     VOS_STATUS status;
     v_U16_t chainSelect_save = chainSelect;
     hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
-    long ret;
 
     if(pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
     {
@@ -1020,8 +754,7 @@ static VOS_STATUS wlan_ftm_priv_enable_chain(hdd_adapter_t *pAdapter,v_U16_t cha
 
     if (chainSelect > FTM_CHAIN_SEL_MAX)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Invalid chain %08x", __func__, chainSelect);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Invalid chain",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
@@ -1047,7 +780,12 @@ static VOS_STATUS wlan_ftm_priv_enable_chain(hdd_adapter_t *pAdapter,v_U16_t cha
             break;
     }
 
-    vos_mem_set(pMsgBuf, sizeof(tPttMsgbuffer), 0);
+    pMsgBuf = (tPttMsgbuffer *)vos_mem_malloc(sizeof(tPttMsgbuffer));
+    if(pMsgBuf == NULL)
+    {
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:pMsgBuf is NULL",__func__);
+        return VOS_STATUS_E_NOMEM;
+    }
     init_completion(&pHddCtx->ftm.ftm_comp_var);
     pMsgBuf->msgId = PTT_MSG_ENABLE_CHAINS;
     pMsgBuf->msgBodyLength = sizeof(tMsgPttEnableChains) + PTT_HEADER_LENGTH;
@@ -1057,30 +795,23 @@ static VOS_STATUS wlan_ftm_priv_enable_chain(hdd_adapter_t *pAdapter,v_U16_t cha
 
     status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
 
-    if (status != VOS_STATUS_SUCCESS)
+    if(status != VOS_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:wlan_ftm_postmsg failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:wlan_ftm_postmsg failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
-    ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                                msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret)
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("wait on ftm_comp_var failed %ld"), ret);
-    }
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
 
-    if (pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
+    if(pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ptt response status failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ptt response status failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
     ftm_status.chainSelect = chainSelect_save;
 done:
+    vos_mem_free((v_VOID_t * )pMsgBuf);
 
     return status;
 }
@@ -1125,8 +856,6 @@ static VOS_STATUS wlan_ftm_priv_get_status(hdd_adapter_t *pAdapter,char *buf)
                       ftm_status.frameParams.interFrameSpace);
     if ((lenRes < 0) || (lenRes >= lenBuf))
     {
-       VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("failed to copy data into buf %d"), lenRes);
        return VOS_STATUS_E_FAILURE;
     }
 
@@ -1149,8 +878,6 @@ static VOS_STATUS wlan_ftm_priv_get_status(hdd_adapter_t *pAdapter,char *buf)
     }
     if ((lenRes < 0) || (lenRes >= lenBuf))
     {
-       VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-         FL("failed to copy data into buf %d"), lenRes);
        return VOS_STATUS_E_FAILURE;
     }
 
@@ -1164,8 +891,6 @@ static VOS_STATUS wlan_ftm_priv_get_status(hdd_adapter_t *pAdapter,char *buf)
 
     if ((lenRes < 0) || (lenRes >= lenBuf))
     {
-       VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-         FL("failed to copy data into buf %d"), lenRes);
        return VOS_STATUS_E_FAILURE;
     }
 
@@ -1175,21 +900,11 @@ static VOS_STATUS wlan_ftm_priv_get_status(hdd_adapter_t *pAdapter,char *buf)
 
 void HEXDUMP(char *s0, char *s1, int len)
 {
-    int i = 0, j = 0;
+    int tmp;
     printk(KERN_EMERG "%s\n :", s0);
 
-    if (len > 8)
-    {
-        for (j = 0; j < len/8; j++)
-        {
-            printk(KERN_EMERG "%02x %02x %02x %02x %02x %02x %02x %02x",
-                    s1[j*8], s1[j*8+1], s1[j*8+2], s1[j*8+3], s1[j*8+4],
-                    s1[j*8+5],s1[j*8+6],s1[j*8+7] );
-        }
-        len = len - j*8;
-    }
-    for (i = 0; i< len; i++) {
-        printk(KERN_EMERG "%02x ", s1[j*8+i]);
+    for (tmp = 0; tmp< len; tmp++) {
+        printk(KERN_EMERG "%02x ", *s1++);
     }
     printk("\n");
 }
@@ -1228,13 +943,8 @@ VOS_STATUS vos_ftm_preStart( v_CONTEXT_t vosContext )
    VOS_TRACE(VOS_MODULE_ID_SYS, VOS_TRACE_LEVEL_INFO,
              "vos prestart");
 
-   if (NULL == pVosContext->pWDAContext)
-   {
-      VOS_ASSERT(0);
-      VOS_TRACE(VOS_MODULE_ID_SYS, VOS_TRACE_LEVEL_ERROR,
-            "%s: WDA NULL context", __func__);
-      return VOS_STATUS_E_FAILURE;
-   }
+
+   VOS_ASSERT( NULL != pVosContext->pWDAContext);
 
    /* call macPreStart */
    vStatus = macPreStart(pVosContext->pMACContext);
@@ -1271,12 +981,12 @@ VOS_STATUS vos_ftm_preStart( v_CONTEXT_t vosContext )
       if ( vStatus == VOS_STATUS_E_TIMEOUT )
       {
          VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-          "%s: Timeout occurred before WDA complete",__func__);
+          "%s: Timeout occurred before WDA complete\n",__func__);
       }
       else
       {
          VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-           "%s: WDA_preStart reporting  other error",__func__);
+           "%s: WDA_preStart reporting  other error \n",__func__);
       }
       VOS_ASSERT( 0 );
       return VOS_STATUS_E_FAILURE;
@@ -1455,19 +1165,10 @@ int wlan_hdd_ftm_close(hdd_context_t *pHddCtx)
 
     //Assert Deep sleep signal now to put Libra HW in lowest power state
     vosStatus = vos_chipAssertDeepSleep( NULL, NULL, NULL );
-    if (!VOS_IS_STATUS_SUCCESS(vosStatus)){
-       VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-          "%s: Failed to assert deep sleep signal", __func__);
-       VOS_ASSERT( 0 );
-    }
+       VOS_ASSERT( VOS_IS_STATUS_SUCCESS( vosStatus ) );
 
     //Vote off any PMIC voltage supplies
-    vosStatus = vos_chipPowerDown(NULL, NULL, NULL);
-    if (!VOS_IS_STATUS_SUCCESS(vosStatus)){
-       VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-          "%s: Failed to put HW into low power", __func__);
-       VOS_ASSERT( 0 );
-    }
+    vos_chipPowerDown(NULL, NULL, NULL);
 
     vos_chipVoteOffXOBuffer(NULL, NULL, NULL);
 
@@ -1534,7 +1235,7 @@ static VOS_STATUS wlan_ftm_send_response(hdd_context_t *pHddCtx){
 
    if( ptt_sock_send_msg_to_app(&pHddCtx->ftm.wnl->wmsg, 0, ANI_NL_MSG_PUMAC, pHddCtx->ftm.wnl->nlh.nlmsg_pid) < 0) {
 
-       VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR, ("Ptt Socket error sending message to the app!!"));
+       VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR, ("Ptt Socket error sending message to the app!!\n"));
        return VOS_STATUS_E_FAILURE;
    }
    return VOS_STATUS_SUCCESS;
@@ -1616,15 +1317,15 @@ static int wlan_hdd_ftm_start(hdd_context_t *pHddCtx)
        if ( vStatus == VOS_STATUS_E_TIMEOUT )
        {
           VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                     "%s: Timeout occurred before WDA_NVDownload_Start complete",__func__);
+                     "%s: Timeout occurred before WDA_NVDownload_Start complete\n",__func__);
        }
        else
        {
          VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                    "%s: WDA_NVDownload_Start reporting  other error",__func__);
+                    "%s: WDA_NVDownload_Start reporting  other error \n",__func__);
        }
        VOS_ASSERT(0);
-       goto err_status_failure;
+       goto err_wda_stop;
     }
 
     vStatus = WDA_start(pVosContext);
@@ -1671,13 +1372,13 @@ err_wda_stop:
       if(vStatus == VOS_STATUS_E_TIMEOUT)
       {
          VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                   "%s: Timeout occurred before WDA_stop complete",__func__);
+                   "%s: Timeout occurred before WDA_stop complete\n",__func__);
 
       }
       else
       {
         VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                  "%s: WDA_stop reporting  other error",__func__);
+                  "%s: WDA_stop reporting  other error \n",__func__);
       }
       VOS_ASSERT(0);
    }
@@ -1731,7 +1432,6 @@ static int wlan_ftm_stop(hdd_context_t *pHddCtx)
 
   \brief wlan_hdd_ftm_get_nv_table() -
             Get Specific NV table
-            NV V2 dedicated API
 
   \param  - ftmCmd - Pointer FTM Commad Buffer
 
@@ -1749,21 +1449,13 @@ int wlan_hdd_ftm_get_nv_table
    VOS_STATUS          nvStatus = VOS_STATUS_SUCCESS;
    pttGetNvTable      *nvTable = (pttGetNvTable *)&ftmCmd->msgBody.GetNvTable;
    v_SIZE_t            nvSize;
-   sHalNvV2           *nvContents = NULL;
-   eNvVersionType      nvVersion;
+   sHalNv             *nvContents = NULL;
+
 
    if (NULL == pHddCtx)
    {
       VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_FATAL,
                 "Not valid driver context");
-      return -EINVAL;
-   }
-
-   nvVersion = vos_nv_getNvVersion();
-   if (E_NV_V2 != nvVersion)
-   {
-      VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_FATAL,
-                "%s : Not valid NV Version %d", __func__, nvVersion);
       return -EINVAL;
    }
 
@@ -1774,8 +1466,8 @@ int wlan_hdd_ftm_get_nv_table
       nvStatus = vos_nv_getNVBuffer((void **)&nvContents, &nvSize);
       if ((VOS_STATUS_SUCCESS != nvStatus) || (NULL == nvContents))
       {
-         VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                FL("Fail to get cached NV value Status %d"), nvStatus);
+         VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_FATAL,
+                    "Fail to get cached NV value Status %d", nvStatus);
          return -EIO;
       }
 
@@ -1848,7 +1540,7 @@ int wlan_hdd_ftm_get_nv_table
          /* Invalid table size, discard and initialize data */
          VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_FATAL,
                     "Invalid Table Size %d for Table %d"
-                    " expected size %d", nvTable->tableSize, nvTable->nvTable,
+                    " expected size %d\n", nvTable->tableSize, nvTable->nvTable,
                     pHddCtx->ftm.targetNVTableSize);
          pHddCtx->ftm.processingNVTable    = NV_MAX_TABLE;
          pHddCtx->ftm.targetNVTableSize    = 0;
@@ -1903,7 +1595,6 @@ int wlan_hdd_ftm_get_nv_table
 
   \brief wlan_hdd_ftm_set_nv_table() -
             Set Specific NV table as given
-            NV V2 dedicated API
 
   \param  - ftmCmd - Pointer FTM Commad Buffer
 
@@ -1921,21 +1612,12 @@ int wlan_hdd_ftm_set_nv_table
    VOS_STATUS          nvStatus = VOS_STATUS_SUCCESS;
    pttSetNvTable      *nvTable = (pttSetNvTable *)&ftmCmd->msgBody.SetNvTable;
    v_SIZE_t            nvSize;
-   sHalNvV2           *nvContents = NULL;
-   eNvVersionType      nvVersion;
+   sHalNv             *nvContents = NULL;
 
    if (NULL == pHddCtx)
    {
       VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_FATAL,
                 "Not valid driver context");
-      return -EINVAL;
-   }
-
-   nvVersion = vos_nv_getNvVersion();
-   if (E_NV_V2 != nvVersion)
-   {
-      VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_FATAL,
-                "%s : Not valid NV Version %d", __func__, nvVersion);
       return -EINVAL;
    }
 
@@ -1946,8 +1628,8 @@ int wlan_hdd_ftm_set_nv_table
       nvStatus = vos_nv_getNVBuffer((void **)&nvContents, &nvSize);
       if ((VOS_STATUS_SUCCESS != nvStatus) || (NULL == nvContents))
       {
-         VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                FL("Fail to get cached NV value Status %d"), nvStatus);
+         VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_FATAL,
+                    "Fail to get cached NV value Status %d", nvStatus);
          return -EINVAL;
       }
 
@@ -2063,7 +1745,6 @@ int wlan_hdd_ftm_set_nv_table
 
   \brief wlan_hdd_ftm_blank_nv() -
             Set all NV table value as default
-            NV V2 dedicated API
 
   \param  - ftmCmd - Pointer FTM Commad Buffer
 
@@ -2077,76 +1758,67 @@ int wlan_hdd_ftm_blank_nv_table
    tPttMsgbuffer  *ftmCmd
 )
 {
-   VOS_STATUS          nvStatus = VOS_STATUS_SUCCESS;
+   VOS_STATUS      nvStatus = VOS_STATUS_SUCCESS;
    v_SIZE_t            nvSize;
    v_SIZE_t            itemSize;
-   sHalNvV2           *nvContents = NULL;
-   eNvVersionType      nvVersion;
+   sHalNv             *nvContents = NULL;
 
    nvStatus = vos_nv_getNVBuffer((void **)&nvContents, &nvSize);
    if((VOS_STATUS_SUCCESS != nvStatus) || (NULL == nvContents))
    {
-      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                FL("Fail to get cached NV value Status %d"), nvStatus);
+      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_INFO,
+                 "Fail to get cached NV value Status %d", nvStatus);
       return -EIO;
-   }
-
-   nvVersion = vos_nv_getNvVersion();
-   if (E_NV_V2 != nvVersion)
-   {
-      VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_FATAL,
-                "%s : Not valid NV Version %d", __func__, nvVersion);
-      return -EINVAL;
    }
 
    itemSize = sizeof(nvContents->tables.pwrOptimum);
    memcpy(&nvContents->tables.pwrOptimum,
-          &nvDefaultsV2.tables.pwrOptimum,
+          &nvDefaults.tables.pwrOptimum,
           itemSize);
 
    itemSize = sizeof(nvContents->tables.regDomains);
    memcpy(&nvContents->tables.regDomains,
-          &nvDefaultsV2.tables.regDomains,
+          &nvDefaults.tables.regDomains,
           itemSize);
 
    itemSize = sizeof(nvContents->tables.defaultCountryTable);
    memcpy(&nvContents->tables.defaultCountryTable,
-          &nvDefaultsV2.tables.defaultCountryTable,
+          &nvDefaults.tables.defaultCountryTable,
           itemSize);
 
    itemSize = sizeof(nvContents->tables.plutCharacterized);
    memcpy(&nvContents->tables.plutCharacterized[0],
-          &nvDefaultsV2.tables.plutCharacterized[0],
+          &nvDefaults.tables.plutCharacterized[0],
           itemSize);
 
    itemSize = sizeof(nvContents->tables.plutPdadcOffset);
    memcpy(&nvContents->tables.plutPdadcOffset[0],
-          &nvDefaultsV2.tables.plutPdadcOffset[0],
+          &nvDefaults.tables.plutPdadcOffset[0],
           itemSize);
 
    itemSize = sizeof(nvContents->tables.pwrOptimum_virtualRate);
    memcpy(&nvContents->tables.pwrOptimum_virtualRate[0],
-          &nvDefaultsV2.tables.pwrOptimum_virtualRate[0],
+          &nvDefaults.tables.pwrOptimum_virtualRate[0],
           itemSize);
 
    itemSize = sizeof(nvContents->tables.rssiChanOffsets);
    memcpy(&nvContents->tables.rssiChanOffsets[0],
-          &nvDefaultsV2.tables.rssiChanOffsets[0],
+          &nvDefaults.tables.rssiChanOffsets[0],
           itemSize);
 
    itemSize = sizeof(nvContents->tables.hwCalValues);
    memcpy(&nvContents->tables.hwCalValues,
-          &nvDefaultsV2.tables.hwCalValues,
+          &nvDefaults.tables.hwCalValues,
           itemSize);
 
    itemSize = sizeof(nvContents->tables.antennaPathLoss);
    memcpy(&nvContents->tables.antennaPathLoss[0],
-          &nvDefaultsV2.tables.antennaPathLoss[0],
+          &nvDefaults.tables.antennaPathLoss[0],
           itemSize);
 
    itemSize = sizeof(nvContents->tables.pktTypePwrLimits);
    memcpy(&nvContents->tables.pktTypePwrLimits[0][0],
-          &nvDefaultsV2.tables.pktTypePwrLimits[0][0],
+          &nvDefaults.tables.pktTypePwrLimits[0][0],
           itemSize);
 
    return 1;
@@ -2156,7 +1828,6 @@ int wlan_hdd_ftm_blank_nv_table
 
   \brief wlan_hdd_ftm_delete_nv_table() -
             Delete Specific NV table
-            NV V2 dedicated API
 
   \param  - ftmCmd - Pointer FTM Commad Buffer
 
@@ -2170,27 +1841,18 @@ int wlan_hdd_ftm_delete_nv_table
    tPttMsgbuffer  *ftmCmd
 )
 {
-   VOS_STATUS          nvStatus = VOS_STATUS_SUCCESS;
+   VOS_STATUS      nvStatus = VOS_STATUS_SUCCESS;
    tMsgPttDelNvTable  *nvTable = (tMsgPttDelNvTable *)&ftmCmd->msgBody.DelNvTable;
    v_SIZE_t            nvSize;
    v_SIZE_t            itemSize;
-   sHalNvV2           *nvContents = NULL;
-   eNvVersionType      nvVersion;
+   sHalNv             *nvContents = NULL;
 
    nvStatus = vos_nv_getNVBuffer((void **)&nvContents, &nvSize);
    if ((VOS_STATUS_SUCCESS != nvStatus) || (NULL == nvContents))
    {
-      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                FL("Fail to get cached NV value Status %d"), nvStatus);
+      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_INFO,
+                 "Fail to get cached NV value Status %d", nvStatus);
       return -EIO;
-   }
-
-   nvVersion = vos_nv_getNvVersion();
-   if (E_NV_V2 != nvVersion)
-   {
-      VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_FATAL,
-                "%s : Not valid NV Version %d", __func__, nvVersion);
-      return -EINVAL;
    }
 
    switch (nvTable->nvTable)
@@ -2198,77 +1860,77 @@ int wlan_hdd_ftm_delete_nv_table
       case NV_TABLE_RATE_POWER_SETTINGS:
          itemSize = sizeof(nvContents->tables.pwrOptimum);
          memcpy(&nvContents->tables.pwrOptimum,
-                &nvDefaultsV2.tables.pwrOptimum,
+                &nvDefaults.tables.pwrOptimum,
                 itemSize);
          break;
 
       case NV_TABLE_REGULATORY_DOMAINS:
          itemSize = sizeof(nvContents->tables.regDomains);
          memcpy(&nvContents->tables.regDomains,
-                &nvDefaultsV2.tables.regDomains,
+                &nvDefaults.tables.regDomains,
                 itemSize);
          break;
 
       case NV_TABLE_DEFAULT_COUNTRY:
          itemSize = sizeof(nvContents->tables.defaultCountryTable);
          memcpy(&nvContents->tables.defaultCountryTable,
-                &nvDefaultsV2.tables.defaultCountryTable,
+                &nvDefaults.tables.defaultCountryTable,
                 itemSize);
          break;
 
       case NV_TABLE_TPC_POWER_TABLE:
          itemSize = sizeof(nvContents->tables.plutCharacterized);
          memcpy(&nvContents->tables.plutCharacterized[0],
-                &nvDefaultsV2.tables.plutCharacterized[0],
+                &nvDefaults.tables.plutCharacterized[0],
                 itemSize);
          break;
 
       case NV_TABLE_TPC_PDADC_OFFSETS:
          itemSize = sizeof(nvContents->tables.plutPdadcOffset);
          memcpy(&nvContents->tables.plutPdadcOffset[0],
-                &nvDefaultsV2.tables.plutPdadcOffset[0],
+                &nvDefaults.tables.plutPdadcOffset[0],
                 itemSize);
          break;
 
       case NV_TABLE_VIRTUAL_RATE:
          itemSize = sizeof(nvContents->tables.pwrOptimum_virtualRate);
          memcpy(&nvContents->tables.pwrOptimum_virtualRate[0],
-                &nvDefaultsV2.tables.pwrOptimum_virtualRate[0],
+                &nvDefaults.tables.pwrOptimum_virtualRate[0],
                 itemSize);
          break;
 
       case NV_TABLE_RSSI_CHANNEL_OFFSETS:
          itemSize = sizeof(nvContents->tables.rssiChanOffsets);
          memcpy(&nvContents->tables.rssiChanOffsets[0],
-                &nvDefaultsV2.tables.rssiChanOffsets[0],
+                &nvDefaults.tables.rssiChanOffsets[0],
                 itemSize);
          break;
 
       case NV_TABLE_HW_CAL_VALUES:
          itemSize = sizeof(nvContents->tables.hwCalValues);
          memcpy(&nvContents->tables.hwCalValues,
-                &nvDefaultsV2.tables.hwCalValues,
+                &nvDefaults.tables.hwCalValues,
                 itemSize);
          break;
 
       case NV_TABLE_FW_CONFIG:
          itemSize = sizeof(nvContents->tables.fwConfig);
          memcpy(&nvContents->tables.fwConfig,
-                &nvDefaultsV2.tables.fwConfig,
+                &nvDefaults.tables.fwConfig,
                 itemSize);
          break;
 
       case NV_TABLE_ANTENNA_PATH_LOSS:
          itemSize = sizeof(nvContents->tables.antennaPathLoss);
          memcpy(&nvContents->tables.antennaPathLoss[0],
-                &nvDefaultsV2.tables.antennaPathLoss[0],
+                &nvDefaults.tables.antennaPathLoss[0],
                 itemSize);
          break;
 
       case NV_TABLE_PACKET_TYPE_POWER_LIMITS:
          itemSize = sizeof(nvContents->tables.pktTypePwrLimits);
          memcpy(&nvContents->tables.pktTypePwrLimits[0][0],
-                &nvDefaultsV2.tables.pktTypePwrLimits[0][0],
+                &nvDefaults.tables.pktTypePwrLimits[0][0],
                 itemSize);
          break;
 
@@ -2308,8 +1970,8 @@ int wlan_hdd_ftm_get_nv_field
    nvStatus = vos_nv_getNVBuffer((void **)&nvContents, &nvSize);
    if ((VOS_STATUS_SUCCESS != nvStatus) || (NULL == nvContents))
    {
-      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                FL("Fail to get cached NV value Status %d"), nvStatus);
+      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_INFO,
+                 "Fail to get cached NV value Status %d", nvStatus);
       return -EIO;
    }
    memcpy(&nvFieldDataBuffer, &nvContents->fields, sizeof(sNvFields));
@@ -2343,7 +2005,7 @@ int wlan_hdd_ftm_get_nv_field
       case NV_COMMON_MAC_ADDR:
          memcpy((void *)&nvField->fieldData,
              &nvFieldDataBuffer.macAddr[0],
-             NV_FIELD_MAC_ADDR_SIZE);
+             NV_FIELD_MAC_ADDR_SIZE * VOS_MAX_CONCURRENCY_PERSONA); // Motorola, IKLOCSEN-984 Return all MACs
          break;
 
       case NV_COMMON_MFG_SERIAL_NUMBER:
@@ -2415,15 +2077,17 @@ int wlan_hdd_ftm_set_nv_field
    v_SIZE_t           nvSize;
    sHalNv            *nvContents = NULL;
    v_U8_t             macLoop;
-   v_U8_t            *pNVMac;
-   v_U8_t             lastByteMAC;
+   /* IKLOCSEN-715 START Support WLAN Multi MAC Programming */
+   v_U8_t             macOctet;
+   v_BOOL_t           isBlankMac = VOS_FALSE;
+   /* IKLOCSEN-715 STOP Support WLAN Multi MAC Programming */
 
 
    nvStatus = vos_nv_getNVBuffer((void **)&nvContents, &nvSize);
    if((VOS_STATUS_SUCCESS != nvStatus) || (NULL == nvContents))
    {
-      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                FL("Fail to get cached NV value Status %d"), nvStatus);
+      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_INFO,
+                 "Fail to get cached NV value Status %d", nvStatus);
       return -EIO;
    }
 
@@ -2454,27 +2118,54 @@ int wlan_hdd_ftm_set_nv_field
          break;
 
       case NV_COMMON_MAC_ADDR:
-         /* If Last byte is larger than 252 (0xFC), return Error,
-          * Since 3MACs should be derived from first MAC */
-         if(QWLAN_MAX_MAC_LAST_BYTE_VALUE <
-            nvField->fieldData.macAddr.macAddr1[VOS_MAC_ADDRESS_LEN - 1])
-         {
-            VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                       "Last Byte of the seed MAC is too large 0x%x",
-                        nvField->fieldData.macAddr.macAddr1[VOS_MAC_ADDRESS_LEN - 1]);
-            return -EILSEQ;
-         }
 
-         pNVMac = (v_U8_t *)nvContents->fields.macAddr;
-         lastByteMAC = nvField->fieldData.macAddr.macAddr1[VOS_MAC_ADDRESS_LEN - 1];
-         for(macLoop = 0; macLoop < VOS_MAX_CONCURRENCY_PERSONA; macLoop++)
+         /* IKLOCSEN-715 START Support WLAN Multi MAC Programming */
+        /* IKJB42MAIN-7853 START, gvx468 */
+        VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_FATAL,
+                        "MAC = %02x:%02x:%02x:%02x:%02x:%02x, MAC2 = %02x:%02x:%02x:%02x:%02x:%02x, MAC3 = %02x:%02x:%02x:%02x:%02x:%02x, MAC4 = %02x:%02x:%02x:%02x:%02x:%02x",
+                        nvField->fieldData.macAddr.macAddr1[0], nvField->fieldData.macAddr.macAddr1[1],
+                        nvField->fieldData.macAddr.macAddr1[2], nvField->fieldData.macAddr.macAddr1[3],
+                        nvField->fieldData.macAddr.macAddr1[4], nvField->fieldData.macAddr.macAddr1[5],
+                        nvField->fieldData.macAddr.macAddr2[0], nvField->fieldData.macAddr.macAddr2[1],
+                        nvField->fieldData.macAddr.macAddr2[2], nvField->fieldData.macAddr.macAddr2[3],
+                        nvField->fieldData.macAddr.macAddr2[4], nvField->fieldData.macAddr.macAddr2[5],
+                        nvField->fieldData.macAddr.macAddr3[0], nvField->fieldData.macAddr.macAddr3[1],
+                        nvField->fieldData.macAddr.macAddr3[2], nvField->fieldData.macAddr.macAddr3[3],
+                        nvField->fieldData.macAddr.macAddr3[4], nvField->fieldData.macAddr.macAddr3[5],
+                        nvField->fieldData.macAddr.macAddr4[0], nvField->fieldData.macAddr.macAddr4[1],
+                        nvField->fieldData.macAddr.macAddr4[2], nvField->fieldData.macAddr.macAddr4[3],
+                        nvField->fieldData.macAddr.macAddr4[4], nvField->fieldData.macAddr.macAddr4[5]);
+         /* IKJB42MAIN-7853 STOP, gvx468 */
+
+	 for(macLoop = 0; macLoop < VOS_MAX_CONCURRENCY_PERSONA; macLoop++)
          {
-            nvField->fieldData.macAddr.macAddr1[VOS_MAC_ADDRESS_LEN - 1] =
-                                               lastByteMAC + macLoop;
-            vos_mem_copy(pNVMac + (macLoop * NV_FIELD_MAC_ADDR_SIZE),
-                         &nvField->fieldData.macAddr.macAddr1[0],
-                         NV_FIELD_MAC_ADDR_SIZE);
-         }
+            v_U8_t *pNVMac =
+                macLoop == 0 ? (v_U8_t *)nvContents->fields.macAddr  :
+                macLoop == 1 ? (v_U8_t *)nvContents->fields.macAddr2 :
+                macLoop == 2 ? (v_U8_t *)nvContents->fields.macAddr3 :
+                               (v_U8_t *)nvContents->fields.macAddr4;
+            v_U8_t *macPtr =
+                macLoop == 0 ? (v_U8_t *)nvField->fieldData.macAddr.macAddr1 :
+                macLoop == 1 ? (v_U8_t *)nvField->fieldData.macAddr.macAddr2 :
+                macLoop == 2 ? (v_U8_t *)nvField->fieldData.macAddr.macAddr3 :
+                               (v_U8_t *)nvField->fieldData.macAddr.macAddr4;
+            isBlankMac = VOS_TRUE;
+            for(macOctet = 0; macOctet < VOS_MAC_ADDRESS_LEN ; macOctet++) {
+                if(macPtr[macOctet] !=0){
+                    isBlankMac = VOS_FALSE;
+                    break;
+                }
+            }
+            if(isBlankMac == VOS_FALSE) {
+                // MAC to be programmed!
+                VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_FATAL,
+                        "Writing MAC #%x, MAC = %02x:%02x:%02x:%02x:%02x:%02x",
+                        macLoop, macPtr[0], macPtr[1], macPtr[2], macPtr[3], macPtr[4], macPtr[5]);
+                vos_mem_copy(pNVMac, macPtr, NV_FIELD_MAC_ADDR_SIZE);
+
+            }
+       }
+         /* IKLOCSEN-715 STOP Support WLAN Multi MAC Programming */
          break;
 
       case NV_COMMON_MFG_SERIAL_NUMBER:
@@ -2515,7 +2206,6 @@ int wlan_hdd_ftm_set_nv_field
 
   \brief wlan_hdd_ftm_store_nv_table() -
             Store Cached NV information into Flash Memory, file
-            NV V2 dedicated API
 
   \param  - ftmCmd - Pointer FTM Commad Buffer
 
@@ -2531,27 +2221,16 @@ int wlan_hdd_ftm_store_nv_table
 {
    VOS_STATUS           nvStatus = VOS_STATUS_SUCCESS;
    v_SIZE_t             nvSize;
+   sHalNv              *nvContents = NULL;
    tMsgPttStoreNvTable *nvTable = (tMsgPttStoreNvTable *)&ftmCmd->msgBody.StoreNvTable;
    void                *tablePtr = NULL;
    unsigned int         tableSize = 0;
    VNV_TYPE             tableVNVType = VNV_FIELD_IMAGE;
-   sHalNvV2            *nvContents = NULL;
-   eNvVersionType       nvVersion;
 
    nvStatus = vos_nv_getNVBuffer((void **)&nvContents, &nvSize);
    if((VOS_STATUS_SUCCESS != nvStatus) || (NULL == nvContents))
    {
-      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                FL("Fail to get cached NV value Status %d"), nvStatus);
       return -EIO;
-   }
-
-   nvVersion = vos_nv_getNvVersion();
-   if (E_NV_V2 != nvVersion)
-   {
-      VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_FATAL,
-                "%s : Not valid NV Version %d", __func__, nvVersion);
-      return -EINVAL;
    }
 
    /* Set Platform type as PRIMA */
@@ -2644,8 +2323,6 @@ int wlan_hdd_ftm_store_nv_table
                            tableSize);
    if(VOS_STATUS_SUCCESS != nvStatus)
    {
-      VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                 "Failed update nv item %d", nvStatus);
       return -EIO;
    }
 
@@ -2675,15 +2352,7 @@ static int wlan_hdd_ftm_get_nv_bin
    v_SIZE_t            nvSize;
    v_U8_t             *nvContents;
    v_U16_t offset = 0;
-   eNvVersionType      nvVersion;
 
-   nvVersion = vos_nv_getNvVersion();
-   if (E_NV_V3 != nvVersion)
-   {
-      VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_FATAL,
-                "%s : Not valid NV Version %d", __func__, nvVersion);
-      return -EINVAL;
-   }
 
    if ((NV_MAX_TABLE == pHddCtx->ftm.processingNVTable) ||
       (0 == pHddCtx->ftm.processedNVTableSize))
@@ -2699,8 +2368,8 @@ static int wlan_hdd_ftm_get_nv_bin
 
       if ((VOS_STATUS_SUCCESS != nvStatus) || (NULL == nvContents))
       {
-         VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                  FL("Fail to get cached NV value Status %d"), nvStatus);
+         VOS_TRACE( VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_FATAL,
+                    "Fail to get cached NV value Status %d", nvStatus);
          return -EIO;
       }
 
@@ -2807,16 +2476,6 @@ static int wlan_hdd_ftm_set_nv_bin
 {
    VOS_STATUS          nvStatus = VOS_STATUS_SUCCESS;
    pttSetNvTable      *nvTable = (pttSetNvTable *)&ftmCmd->msgBody.SetNvBin;
-   eNvVersionType      nvVersion;
-
-   nvVersion = vos_nv_getNvVersion();
-   if (E_NV_V3 != nvVersion)
-   {
-      VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_FATAL,
-                "%s : Not valid NV Version %d", __func__, nvVersion);
-      return -EINVAL;
-   }
-
 
    /* Test first chunk of NV table */
    if ((NV_MAX_TABLE == pHddCtx->ftm.processingNVTable) ||
@@ -3088,7 +2747,7 @@ void wlan_hdd_process_ftm_cmd
 
     if (!pRequestBuf) {
 
-        hddLog(VOS_TRACE_LEVEL_ERROR,"%s: request buffer is null",__func__);
+        hddLog(VOS_TRACE_LEVEL_ERROR,"%s: request buffer is null\n",__func__);
         return ;
     }
     /*Save the received request*/
@@ -3099,7 +2758,7 @@ void wlan_hdd_process_ftm_cmd
     pHddCtx->ftm.wnl = wnl;
     if (pRequestBuf->module_type != QUALCOMM_MODULE_TYPE) {
 
-        hddLog(VOS_TRACE_LEVEL_ERROR,"%s: Invalid Module Type =%d",__func__,pRequestBuf->module_type);
+        hddLog(VOS_TRACE_LEVEL_ERROR,"%s: Invalid Module Type =%d\n",__func__,pRequestBuf->module_type);
 
         pHddCtx->ftm.pResponseBuf->ftm_err_code = WLAN_FTM_FAILURE;
         wlan_ftm_send_response(pHddCtx);
@@ -3111,7 +2770,7 @@ void wlan_hdd_process_ftm_cmd
     case WLAN_FTM_START:
         if (pHddCtx->ftm.ftm_state == WLAN_FTM_STARTED) {
 
-            hddLog(VOS_TRACE_LEVEL_ERROR,"%s: FTM has already started =%d",__func__,pRequestBuf->ftmpkt.ftm_cmd_type);
+            hddLog(VOS_TRACE_LEVEL_ERROR,"%s: FTM has already started =%d\n",__func__,pRequestBuf->ftmpkt.ftm_cmd_type);
             pHddCtx->ftm.pResponseBuf->ftm_hdr.data_len -= 1;
             pHddCtx->ftm.pResponseBuf->ftm_err_code = WLAN_FTM_SUCCESS;
             wlan_ftm_send_response(pHddCtx);
@@ -3138,7 +2797,7 @@ void wlan_hdd_process_ftm_cmd
     case WLAN_FTM_STOP:
         if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED) {
 
-            hddLog(VOS_TRACE_LEVEL_ERROR,"%s:: FTM has not started",__func__);
+            hddLog(VOS_TRACE_LEVEL_ERROR,"%s:: FTM has not started\n",__func__);
             pHddCtx->ftm.pResponseBuf->ftm_err_code = WLAN_FTM_SUCCESS;
             wlan_ftm_send_response(pHddCtx);
             return;
@@ -3162,12 +2821,12 @@ void wlan_hdd_process_ftm_cmd
     case WLAN_FTM_CMD:
         /* if it is regular FTM command, pass it to HAL PHY */
         if(pHddCtx->ftm.IsCmdPending == TRUE) {
-            hddLog(VOS_TRACE_LEVEL_ERROR,"%s:: FTM command pending for process",__func__);
+            hddLog(VOS_TRACE_LEVEL_ERROR,"%s:: FTM command pending for process\n",__func__);
             return;
         }
         if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED) {
 
-            hddLog(VOS_TRACE_LEVEL_ERROR,"%s:: FTM has not started",__func__);
+            hddLog(VOS_TRACE_LEVEL_ERROR,"%s:: FTM has not started\n",__func__);
 
             pHddCtx->ftm.pResponseBuf->ftm_err_code = WLAN_FTM_FAILURE;
             wlan_ftm_send_response(pHddCtx);
@@ -3186,7 +2845,7 @@ void wlan_hdd_process_ftm_cmd
            if (NULL == tempRspBuffer)
            {
               hddLog(VOS_TRACE_LEVEL_ERROR,
-                     "%s:: temp Mem Alloc Fail",__func__);
+                     "%s:: temp Mem Alloc Fail\n",__func__);
               pHddCtx->ftm.pResponseBuf->ftm_err_code = WLAN_FTM_FAILURE;
               wlan_ftm_send_response(pHddCtx);
               return;
@@ -3216,7 +2875,7 @@ void wlan_hdd_process_ftm_cmd
         /*Post the command to the HAL*/
         if (wlan_ftm_postmsg(pftm_data, cmd_len) != VOS_STATUS_SUCCESS) {
 
-            hddLog(VOS_TRACE_LEVEL_ERROR,"%s:: FTM command failed",__func__);
+            hddLog(VOS_TRACE_LEVEL_ERROR,"%s:: FTM command failed\n",__func__);
             return;
 
         }
@@ -3238,7 +2897,7 @@ void wlan_hdd_process_ftm_cmd
 
     default:
 
-        hddLog(VOS_TRACE_LEVEL_ERROR,"%s:: Command not supported",__func__);
+        hddLog(VOS_TRACE_LEVEL_ERROR,"%s:: Command not supported \n",__func__);
         return;
     }
 
@@ -3276,16 +2935,6 @@ static VOS_STATUS wlan_ftm_priv_start_stop_ftm(hdd_adapter_t *pAdapter,
                       "FTM Start Failed");
             return VOS_STATUS_E_FAILURE;
         }
-        if (NULL == pMsgBuf)
-        {
-            pMsgBuf = (tPttMsgbuffer *)vos_mem_malloc(sizeof(tPttMsgbuffer));
-            if (NULL == pMsgBuf)
-            {
-                VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                            "%s:pMsgBuf is NULL", __func__);
-                return VOS_STATUS_E_FAILURE;
-            }
-        }
     }
     else
     {
@@ -3297,83 +2946,8 @@ static VOS_STATUS wlan_ftm_priv_start_stop_ftm(hdd_adapter_t *pAdapter,
                       "FTM Stop Failed");
             return VOS_STATUS_E_FAILURE;
         }
-        pHddCtx->ftm.ftm_state = WLAN_FTM_STOPPED;
-        if (pMsgBuf)
-        {
-            vos_mem_free((v_VOID_t * )pMsgBuf);
-            pMsgBuf = NULL;
-        }
     }
     return VOS_STATUS_SUCCESS;
-}
-
-
-static VOS_STATUS validate_channel(unsigned int channel,unsigned int cb)
-{
-    unsigned int *table = NULL;
-    int index = 0;
-
-    if (PHY_SINGLE_CHANNEL_CENTERED == cb)
-        table = valid_channel;
-    else if (cb >= PHY_DOUBLE_CHANNEL_LOW_PRIMARY &&
-             cb <= PHY_DOUBLE_CHANNEL_HIGH_PRIMARY)
-        table = valid_channel_cb40;
-    else if (cb >= PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_CENTERED &&
-             cb <= PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_HIGH)
-        table = valid_channel_cb80;
-
-    if (NULL == table)
-    {
-        hddLog(VOS_TRACE_LEVEL_ERROR, "%s failed to find channel table %d",
-                __func__, cb);
-        return VOS_STATUS_E_FAILURE;
-    }
-
-    while (table[index] != 0)
-    {
-        if (table[index] == channel)
-            return VOS_STATUS_SUCCESS;
-
-        index++;
-    }
-
-    return VOS_STATUS_E_FAILURE;
-}
-
-
-static unsigned int get_primary_channel(unsigned int center_channel,unsigned int cb)
-{
-    unsigned int primary_channel = center_channel;
-
-        if (center_channel <= 14)
-                return primary_channel ;
-
-    switch (cb)
-    {
-        case PHY_DOUBLE_CHANNEL_LOW_PRIMARY:
-                case PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_CENTERED:
-                case PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_LOW:
-            primary_channel -= 2;
-            break;
-
-
-        case PHY_DOUBLE_CHANNEL_HIGH_PRIMARY:
-                case PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_CENTERED:
-                case PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_HIGH:
-                        primary_channel += 2;
-                        break;
-
-                case PHY_QUADRUPLE_CHANNEL_20MHZ_LOW_40MHZ_LOW:
-                        primary_channel -= 6;
-                        break;
-
-                case PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_HIGH:
-                        primary_channel += 6;
-                        break;
-        }
-
-        return primary_channel;
-
 }
 
 /**---------------------------------------------------------------------------
@@ -3391,139 +2965,62 @@ static unsigned int get_primary_channel(unsigned int center_channel,unsigned int
 
 static VOS_STATUS wlan_ftm_priv_set_channel(hdd_adapter_t *pAdapter,v_U16_t channel)
 {
+    tPttMsgbuffer *pMsgBuf;
     uPttMsgs *pMsgBody;
     VOS_STATUS status;
-    long ret;
     hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
 
-    if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
+    if(pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ftm has not started. Please start the ftm. ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ftm has not started. Please start the ftm. ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
-    if (VOS_STATUS_SUCCESS != validate_channel(channel, ftm_status.cbmode))
+    if(!(channel >= 1 && channel <= 14))
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Invalid Channel Number. ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Invalid Channel Number. ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
-    vos_mem_set(pMsgBuf, sizeof(*pMsgBuf), 0);
+    pMsgBuf = (tPttMsgbuffer *)vos_mem_malloc(sizeof(tPttMsgbuffer));
+    if(pMsgBuf == NULL)
+    {
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:pMsgBuf is NULL",__func__);
+        return VOS_STATUS_E_NOMEM;
+    }
     init_completion(&pHddCtx->ftm.ftm_comp_var);
     pMsgBuf->msgId = PTT_MSG_SET_CHANNEL;
     pMsgBuf->msgBodyLength = sizeof(tMsgPttSetChannel) + PTT_HEADER_LENGTH;
 
     pMsgBody = &pMsgBuf->msgBody;
 
-    pMsgBody->SetChannel.chId = get_primary_channel(channel, ftm_status.cbmode);
+    pMsgBody->SetChannel.chId = channel;
 
-    VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO_HIGH, "Channel =%d",pMsgBody->SetChannel.chId);
-    pMsgBody->SetChannel.cbState = ftm_status.cbmode ;
+    VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO_HIGH, "Channel =%d\n",pMsgBody->SetChannel.chId);
+    pMsgBody->SetChannel.cbState = PHY_SINGLE_CHANNEL_CENTERED;
 
     status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
 
-    if (status != VOS_STATUS_SUCCESS)
+    if(status != VOS_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:wlan_ftm_postmsg failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:wlan_ftm_postmsg failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
 
     }
-    ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                                msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret )
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("wait on ftm_comp_var failed %ld"), ret);
-    }
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
 
-    if (pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
+    if(pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ptt response status failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ptt response status failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
 
     }
 done:
+    vos_mem_free((v_VOID_t * )pMsgBuf);
 
     return status;
-}
-
-
-/**---------------------------------------------------------------------------
-
-  \brief wlan_ftm_priv_set_pwr_cntl_mode() -
-
-   This function is used for setting the power control mode for tx.
-
-  \param  - pAdapter - Pointer HDD Context.
-          - pwr_mode   -  power control mode 0-2.
-
-  \return - 0 for success, non zero for failure
-
-  --------------------------------------------------------------------------*/
-
-static VOS_STATUS wlan_ftm_priv_set_pwr_cntl_mode(hdd_adapter_t *pAdapter,
-                                                      v_U16_t pwr_mode)
-{
-    uPttMsgs *pMsgBody;
-    VOS_STATUS status;
-    long ret;
-    hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
-
-    if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ftm has not started. Please start the ftm. ", __func__);
-        return VOS_STATUS_E_FAILURE;
-    }
-
-    if (pwr_mode > 2)
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:invalid control mode.valid mode is 0 , 1, 2.", __func__);
-        return VOS_STATUS_E_FAILURE;
-    }
-
-    vos_mem_set(pMsgBuf, sizeof(tPttMsgbuffer), 0);
-    init_completion(&pHddCtx->ftm.ftm_comp_var);
-    pMsgBody = &pMsgBuf->msgBody;
-    pMsgBuf->msgId = PTT_MSG_CLOSE_TPC_LOOP_PRIMA_V1;
-    pMsgBuf->msgBodyLength = sizeof(tMsgPttCloseTpcLoop) + PTT_HEADER_LENGTH;
-
-    pMsgBody->CloseTpcLoop.tpcClose = pwr_mode;
-    status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf, pMsgBuf->msgBodyLength);
-
-    if (status != VOS_STATUS_SUCCESS)
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:wlan_ftm_postmsg failed", __func__);
-        status = VOS_STATUS_E_FAILURE;
-        goto done;
-    }
-    ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                                 msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret )
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("wait on ftm_comp_var failed %ld"), ret);
-    }
-
-    if (pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ptt response status failed", __func__);
-        status = VOS_STATUS_E_FAILURE;
-        goto done;
-    }
-
- done:
-    return status;
-
 }
 
 /**---------------------------------------------------------------------------
@@ -3539,18 +3036,16 @@ static VOS_STATUS wlan_ftm_priv_set_pwr_cntl_mode(hdd_adapter_t *pAdapter,
 
   --------------------------------------------------------------------------*/
 
-static VOS_STATUS wlan_ftm_priv_set_txpower(hdd_adapter_t *pAdapter,
-                                            v_U16_t txpower)
+static VOS_STATUS wlan_ftm_priv_set_txpower(hdd_adapter_t *pAdapter,v_U16_t txpower)
 {
+    tPttMsgbuffer *pMsgBuf;
     uPttMsgs *pMsgBody;
     VOS_STATUS status;
-    long ret;
     hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
 
-    if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
+    if(pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ftm has not started. Please start the ftm. ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ftm has not started. Please start the ftm. ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
@@ -3559,21 +3054,46 @@ static VOS_STATUS wlan_ftm_priv_set_txpower(hdd_adapter_t *pAdapter,
      */
     if (ftm_status.frameGenEnabled)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:cannot set txpower when pktgen is enabled.", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:cannot set txpower when pktgen is enabled.",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
     if(!(txpower >= 9 && txpower <= 24))
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Invalid tx power. ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Invalid tx power. ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
-
-    vos_mem_set(pMsgBuf, sizeof(tPttMsgbuffer), 0);
+    pMsgBuf = (tPttMsgbuffer *)vos_mem_malloc(sizeof(tPttMsgbuffer));
+    if(pMsgBuf == NULL)
+    {
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:pMsgBuf is NULL",__func__);
+        return VOS_STATUS_E_NOMEM;
+    }
     init_completion(&pHddCtx->ftm.ftm_comp_var);
+    pMsgBuf->msgId = PTT_MSG_CLOSE_TPC_LOOP;
+    pMsgBuf->msgBodyLength = sizeof(tMsgPttCloseTpcLoop) + PTT_HEADER_LENGTH;
+
     pMsgBody = &pMsgBuf->msgBody;
+    pMsgBody->CloseTpcLoop.tpcClose = TRUE;
+
+    status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
+
+    if(status != VOS_STATUS_SUCCESS)
+    {
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:wlan_ftm_postmsg failed",__func__);
+        status = VOS_STATUS_E_FAILURE;
+        goto done;
+    }
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
+
+    if(pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
+    {
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ptt response status failed",__func__);
+        status = VOS_STATUS_E_FAILURE;
+        goto done;
+    }
+
+    init_completion(&pHddCtx->ftm.ftm_comp_var);
     pMsgBuf->msgId = PTT_MSG_SET_TX_POWER;
     pMsgBuf->msgBodyLength = sizeof(tMsgPttSetTxPower) + PTT_HEADER_LENGTH;
 
@@ -3581,71 +3101,28 @@ static VOS_STATUS wlan_ftm_priv_set_txpower(hdd_adapter_t *pAdapter,
 
     status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
 
-    if (status != VOS_STATUS_SUCCESS)
+    if(status != VOS_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:wlan_ftm_postmsg failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:wlan_ftm_postmsg failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
-    ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                              msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret )
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("wait on ftm_comp_var failed %ld"), ret);
-    }
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
 
-    if (pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
+    if(pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ptt response status failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ptt response status failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
 
     ftm_status.txpower = txpower ;
  done:
+    vos_mem_free((v_VOID_t * )pMsgBuf);
 
     return status;
 
 }
-
-
-static VOS_STATUS wlan_ftm_priv_enable_dpd(hdd_adapter_t *pAdapter,
-                                              v_U16_t enable)
-{
-    tANI_U32 value = 0;
-    tANI_U32 reg_addr;
-    hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
-    if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                  "%s:Ftm has not started. Please start the ftm. ", __func__);
-        return VOS_STATUS_E_FAILURE;
-    }
-
-#ifdef WCN_PRONTO
-    reg_addr = 0xfb018000;
-#else
-    reg_addr = 0x03018000;
-#endif
-    wpalReadRegister(reg_addr, &value);
-    if (enable)
-    {
-        value &= (~QWLAN_TXFIR_CFG_DPD_BYPASS_MASK);
-    }
-    else
-    {
-        value |= QWLAN_TXFIR_CFG_DPD_BYPASS_MASK;
-    }
-
-    wpalWriteRegister(reg_addr, value);
-
-    return VOS_STATUS_SUCCESS;
-}
-
-
 /**---------------------------------------------------------------------------
 
   \brief wlan_ftm_priv_set_txrate() -
@@ -3684,7 +3161,7 @@ static VOS_STATUS wlan_ftm_priv_set_txrate(hdd_adapter_t *pAdapter,char *txrate)
     }
     if(ii >= SIZE_OF_TABLE(rateName_rateIndex_tbl))
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Invalid Rate String",__func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Invalid Rate String\n",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
@@ -3709,23 +3186,20 @@ static VOS_STATUS wlan_ftm_priv_set_txrate(hdd_adapter_t *pAdapter,char *txrate)
 
 static VOS_STATUS wlan_ftm_priv_start_stop_tx_pktgen(hdd_adapter_t *pAdapter,v_U16_t startStop)
 {
+    tPttMsgbuffer *pMsgBuf;
     uPttMsgs *pMsgBody;
     VOS_STATUS status;
-    long ret;
-
     hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
 
-    if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
+    if(pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ftm has not started. Please start the ftm. ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ftm has not started. Please start the ftm. ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
-    if (startStop != 1 && startStop != 0)
+    if(startStop != 1 && startStop != 0)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Tx value is invalid ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Tx value is invalid ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
@@ -3734,8 +3208,13 @@ static VOS_STATUS wlan_ftm_priv_start_stop_tx_pktgen(hdd_adapter_t *pAdapter,v_U
     {
         return VOS_STATUS_SUCCESS ;
     }
-    vos_mem_set(pMsgBuf, sizeof(tPttMsgbuffer), 0);
 
+    pMsgBuf = (tPttMsgbuffer *)vos_mem_malloc(sizeof(tPttMsgbuffer));
+    if(pMsgBuf == NULL)
+    {
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:pMsgBuf is NULL",__func__);
+        return VOS_STATUS_E_NOMEM;
+    }
     if (startStop == 1)
     {
         init_completion(&pHddCtx->ftm.ftm_comp_var);
@@ -3745,25 +3224,17 @@ static VOS_STATUS wlan_ftm_priv_start_stop_tx_pktgen(hdd_adapter_t *pAdapter,v_U
         pMsgBody->ConfigTxPacketGen.frameParams = ftm_status.frameParams ;
 
         status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
-        if (status != VOS_STATUS_SUCCESS)
+        if(status != VOS_STATUS_SUCCESS)
         {
-            VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                  "%s:posting PTT_MSG_CONFIG_TX_PACKET_GEN failed", __func__);
+            VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:posting PTT_MSG_CONFIG_TX_PACKET_GEN failed",__func__);
             status = VOS_STATUS_E_FAILURE;
             goto done;
         }
 
-        ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                                   msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-        if (0 >= ret )
+        wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
+        if(pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
         {
-            VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                 FL("wait on ftm_comp_var failed %ld"), ret);
-        }
-        if (pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
-        {
-            VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                       "%s: PTT_MSG_CONFIG_TX_PACKET_GEN failed", __func__);
+            VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s: PTT_MSG_CONFIG_TX_PACKET_GEN failed",__func__);
             status = VOS_STATUS_E_FAILURE;
             goto done;
         }
@@ -3783,14 +3254,7 @@ static VOS_STATUS wlan_ftm_priv_start_stop_tx_pktgen(hdd_adapter_t *pAdapter,v_U
         goto done;
     }
 
-    ret  = wait_for_completion_interruptible_timeout(
-                  &pHddCtx->ftm.ftm_comp_var,
-                   msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret )
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("wait on ftm_comp_var failed %ld"), ret);
-    }
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
     if(pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
     {
         VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ptt response status failed",__func__);
@@ -3799,47 +3263,23 @@ static VOS_STATUS wlan_ftm_priv_start_stop_tx_pktgen(hdd_adapter_t *pAdapter,v_U
     }
 
 done:
+    vos_mem_free((v_VOID_t * )pMsgBuf);
 
     if (status == VOS_STATUS_SUCCESS)
     {
         if (startStop == 1)
         {
-            ftm_status.frameGenEnabled = eANI_BOOLEAN_TRUE;
+            ftm_status.frameGenEnabled = eANI_BOOLEAN_TRUE ;
         }
         else
         {
-            ftm_status.frameGenEnabled = eANI_BOOLEAN_FALSE;
+            ftm_status.frameGenEnabled = eANI_BOOLEAN_FALSE ;
         }
     }
 
     return status;
 }
 
-
-
-static VOS_STATUS wlan_ftm_priv_set_cb(hdd_adapter_t *pAdapter, v_U16_t cbmode)
-{
-
-    hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
-    if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ftm has not started. Please start the ftm. ", __func__);
-        return VOS_STATUS_E_FAILURE;
-    }
-
-    if (cbmode > PHY_QUADRUPLE_CHANNEL_20MHZ_HIGH_40MHZ_HIGH)
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:cb mode value is invalid ", __func__);
-        return VOS_STATUS_E_FAILURE;
-    }
-
-    ftm_status.cbmode = cbmode;
-
-    return VOS_STATUS_SUCCESS;
-
-}
 
 /**---------------------------------------------------------------------------
 
@@ -3859,26 +3299,29 @@ static VOS_STATUS wlan_ftm_priv_set_cb(hdd_adapter_t *pAdapter, v_U16_t cbmode)
 
 static VOS_STATUS wlan_ftm_priv_rx_mode(hdd_adapter_t *pAdapter,v_U16_t rxmode)
 {
+    tPttMsgbuffer *pMsgBuf;
     uPttMsgs *pMsgBody;
     VOS_STATUS status;
-    long ret;
 
     hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
-    if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
+    if(pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ftm has not started. Please start the ftm. ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ftm has not started. Please start the ftm. ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
-    if (rxmode > 3)
+    if(rxmode > 3)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Rx mode value is invalid ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Rx mode value is invalid ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
-    vos_mem_set(pMsgBuf, sizeof(tPttMsgbuffer), 0);
+    pMsgBuf = (tPttMsgbuffer *)vos_mem_malloc(sizeof(tPttMsgbuffer));
+    if(pMsgBuf == NULL)
+    {
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:pMsgBuf is NULL",__func__);
+        return VOS_STATUS_E_NOMEM;
+    }
     init_completion(&pHddCtx->ftm.ftm_comp_var);
 
     pMsgBuf->msgId = PTT_MSG_SET_RX_DISABLE_MODE;
@@ -3916,30 +3359,23 @@ static VOS_STATUS wlan_ftm_priv_rx_mode(hdd_adapter_t *pAdapter,v_U16_t rxmode)
 
     status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
 
-    if (status != VOS_STATUS_SUCCESS)
+    if(status != VOS_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:wlan_ftm_postmsg failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:wlan_ftm_postmsg failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
-    ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                                msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret )
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL(" wait on ftm_comp_var failed %ld"), ret);
-    }
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
 
-    if (pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
+    if(pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ptt response status failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ptt response status failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
     ftm_status.rxmode = rxmode ;
 done:
+    vos_mem_free((v_VOID_t * )pMsgBuf);
 
     return status;
 }
@@ -3959,55 +3395,54 @@ done:
 
 static VOS_STATUS wlan_ftm_priv_rx_pkt_clear(hdd_adapter_t *pAdapter,v_U16_t rx_pkt_clear)
 {
+    tPttMsgbuffer *pMsgBuf;
+    uPttMsgs *pMsgBody;
     VOS_STATUS status;
-    long ret;
-
     hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
 
-    if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
+    if(pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ftm has not started. Please start the ftm. ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ftm has not started. Please start the ftm. ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
-    if (rx_pkt_clear != 1)
+    if(rx_pkt_clear != 1)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Invalid rx_pkt_clear value ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Invalid rx_pkt_clear value ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
-    vos_mem_set(pMsgBuf, sizeof(tPttMsgbuffer), 0);
+    pMsgBuf = (tPttMsgbuffer *)vos_mem_malloc(sizeof(tPttMsgbuffer));
+    if(pMsgBuf == NULL)
+    {
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:pMsgBuf is NULL",__func__);
+        return VOS_STATUS_E_NOMEM;
+    }
     init_completion(&pHddCtx->ftm.ftm_comp_var);
     pMsgBuf->msgId = PTT_MSG_RESET_RX_PACKET_STATISTICS;
     pMsgBuf->msgBodyLength = sizeof(tMsgPttResetRxPacketStatistics) + PTT_HEADER_LENGTH;
 
+    pMsgBody = &pMsgBuf->msgBody;
+    pMsgBody->ResetRxPacketStatistics.notUsed= rx_pkt_clear;
+
     status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
 
-    if (status != VOS_STATUS_SUCCESS)
+    if(status != VOS_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:wlan_ftm_postmsg failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:wlan_ftm_postmsg failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
-    ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                                 msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret )
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("wait on ftm_comp_var failed %ld"), ret);
-    }
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
 
-    if (pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
+    if(pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ptt response status failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ptt response status failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
 done:
+    vos_mem_free((v_VOID_t * )pMsgBuf);
 
     return status;
 }
@@ -4028,21 +3463,25 @@ done:
 
 static VOS_STATUS wlan_ftm_priv_get_channel(hdd_adapter_t *pAdapter,v_U16_t *pChannel)
 {
+    tPttMsgbuffer *pMsgBuf;
     uPttMsgs *pMsgBody;
     VOS_STATUS status;
     v_U16_t  freq;
     v_U8_t indx=0;
-    long ret;
 
     hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
 
-    if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
+    if(pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ftm has not started. Please start the ftm. ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ftm has not started. Please start the ftm. ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
-    vos_mem_set(pMsgBuf, sizeof(tPttMsgbuffer), 0);
+    pMsgBuf = (tPttMsgbuffer *)vos_mem_malloc(sizeof(tPttMsgbuffer));
+    if(pMsgBuf == NULL)
+    {
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:pMsgBuf is NULL",__func__);
+        return VOS_STATUS_E_NOMEM;
+    }
     init_completion(&pHddCtx->ftm.ftm_comp_var);
     pMsgBuf->msgId = PTT_MSG_DBG_READ_REGISTER;
     pMsgBuf->msgBodyLength = sizeof(tMsgPttDbgReadRegister) + PTT_HEADER_LENGTH;
@@ -4052,26 +3491,18 @@ static VOS_STATUS wlan_ftm_priv_get_channel(hdd_adapter_t *pAdapter,v_U16_t *pCh
 
     status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
 
-    if (status != VOS_STATUS_SUCCESS)
+    if(status != VOS_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:wlan_ftm_postmsg failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:wlan_ftm_postmsg failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
 
     }
-    ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                                 msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret )
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("wait on ftm_comp_var failed %ld"), ret);
-    }
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
 
-    if (pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
+    if(pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ptt response status failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ptt response status failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
@@ -4089,8 +3520,9 @@ static VOS_STATUS wlan_ftm_priv_get_channel(hdd_adapter_t *pAdapter,v_U16_t *pCh
 
     *pChannel = freq_chan_tbl[indx].chan;
 
-     VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO_HIGH, "Channel = %d  freq = %d",*pChannel, freq);
+     VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO_HIGH, "Channel = %d  freq = %d\n",*pChannel, freq);
  done:
+     vos_mem_free((v_VOID_t * )pMsgBuf);
 
      return status;
 }
@@ -4111,18 +3543,22 @@ static VOS_STATUS wlan_ftm_priv_get_channel(hdd_adapter_t *pAdapter,v_U16_t *pCh
 
 static VOS_STATUS wlan_ftm_priv_get_txpower(hdd_adapter_t *pAdapter,v_U16_t *pTxPwr)
 {
+    tPttMsgbuffer *pMsgBuf;
     uPttMsgs *pMsgBody;
     VOS_STATUS status;
-    long ret;
     hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
 
-    if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
+    if(pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ftm has not started. Please start the ftm. ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ftm has not started. Please start the ftm. ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
-    vos_mem_set(pMsgBuf, sizeof(tPttMsgbuffer), 0);
+    pMsgBuf = (tPttMsgbuffer *)vos_mem_malloc(sizeof(tPttMsgbuffer));
+    if(pMsgBuf == NULL)
+    {
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:pMsgBuf is NULL",__func__);
+        return VOS_STATUS_E_NOMEM;
+    }
     init_completion(&pHddCtx->ftm.ftm_comp_var);
     pMsgBuf->msgId = PTT_MSG_GET_TX_POWER_REPORT;
     pMsgBuf->msgBodyLength = sizeof(tMsgPttGetTxPowerReport) + PTT_HEADER_LENGTH;
@@ -4131,31 +3567,24 @@ static VOS_STATUS wlan_ftm_priv_get_txpower(hdd_adapter_t *pAdapter,v_U16_t *pTx
 
     status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
 
-    if (status != VOS_STATUS_SUCCESS)
+    if(status != VOS_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:wlan_ftm_postmsg failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:wlan_ftm_postmsg failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
-    ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                                 msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret )
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("wait on ftm_comp_var failed %ld"), ret);
-    }
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
 
-    if (pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
+    if(pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s: PTT_MSG_GET_TX_POWER_REPORT failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s: PTT_MSG_GET_TX_POWER_REPORT failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
     *pTxPwr = ((((pMsgBody->GetTxPowerReport.pwrTemplateIndex & 0x1F) + 4)*50)/100);
 
  done:
+     vos_mem_free((v_VOID_t * )pMsgBuf);
 
      return status;
 }
@@ -4175,6 +3604,7 @@ static VOS_STATUS wlan_ftm_priv_get_txpower(hdd_adapter_t *pAdapter,v_U16_t *pTx
 
 VOS_STATUS wlan_ftm_priv_get_ftm_version(hdd_adapter_t *pAdapter,char *pftmVer)
 {
+    tPttMsgbuffer *pMsgBuf;
     uPttMsgs *pMsgBody;
     VOS_STATUS status;
     v_U32_t reg_val;
@@ -4182,16 +3612,19 @@ VOS_STATUS wlan_ftm_priv_get_ftm_version(hdd_adapter_t *pAdapter,char *pftmVer)
     hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
     int lenRes = 0;
     int lenBuf = WE_FTM_MAX_STR_LEN;
-    long ret;
 
-    if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
+    if(pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ftm has not started. Please start the ftm. ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ftm has not started. Please start the ftm. ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
-    vos_mem_set(pMsgBuf, sizeof(tPttMsgbuffer), 0);
+    pMsgBuf = (tPttMsgbuffer *)vos_mem_malloc(sizeof(tPttMsgbuffer));
+    if(pMsgBuf == NULL)
+    {
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:pMsgBuf is NULL",__func__);
+        return VOS_STATUS_E_NOMEM;
+    }
     init_completion(&pHddCtx->ftm.ftm_comp_var);
     pMsgBuf->msgId = PTT_MSG_DBG_READ_REGISTER;
     pMsgBuf->msgBodyLength = sizeof(tMsgPttDbgReadRegister) + PTT_HEADER_LENGTH;
@@ -4201,26 +3634,18 @@ VOS_STATUS wlan_ftm_priv_get_ftm_version(hdd_adapter_t *pAdapter,char *pftmVer)
 
     status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
 
-    if (status != VOS_STATUS_SUCCESS)
+    if(status != VOS_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:wlan_ftm_postmsg failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:wlan_ftm_postmsg failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
 
     }
-    ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                                 msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret )
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("wait on ftm_comp_var failed %ld"), ret);
-    }
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
 
-    if (pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
+    if(pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ptt response status failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ptt response status failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
@@ -4236,20 +3661,14 @@ VOS_STATUS wlan_ftm_priv_get_ftm_version(hdd_adapter_t *pAdapter,char *pftmVer)
 
     status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
 
-    if (status != VOS_STATUS_SUCCESS)
+    if(status != VOS_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:wlan_ftm_postmsg failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:wlan_ftm_postmsg failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
-    ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                                msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret )
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("wait on ftm_comp_var failed %ld"), ret);
-    }
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
+
 
     lenRes = snprintf(buf, lenBuf, "%s_",WLAN_CHIP_VERSION);
     if(lenRes < 0 || lenRes >= lenBuf)
@@ -4284,6 +3703,7 @@ VOS_STATUS wlan_ftm_priv_get_ftm_version(hdd_adapter_t *pAdapter,char *pftmVer)
 
 
 done:
+    vos_mem_free((v_VOID_t * )pMsgBuf);
 
     return status;
 
@@ -4305,21 +3725,24 @@ done:
 
 static VOS_STATUS wlan_ftm_priv_get_txrate(hdd_adapter_t *pAdapter,char *pTxRate)
 {
+    tPttMsgbuffer *pMsgBuf;
     uPttMsgs *pMsgBody;
     VOS_STATUS status;
     v_U16_t rate_index,ii;
-    long ret;
-
     hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
 
-    if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
+    if(pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ftm has not started. Please start the ftm. ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ftm has not started. Please start the ftm. ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
 
-    vos_mem_set(pMsgBuf, sizeof(tPttMsgbuffer), 0);
+    pMsgBuf = (tPttMsgbuffer *)vos_mem_malloc(sizeof(tPttMsgbuffer));
+    if(pMsgBuf == NULL)
+    {
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:pMsgBuf is NULL",__func__);
+        return VOS_STATUS_E_NOMEM;
+    }
     init_completion(&pHddCtx->ftm.ftm_comp_var);
     pMsgBuf->msgId = PTT_MSG_GET_TX_POWER_REPORT;
     pMsgBuf->msgBodyLength = sizeof(tMsgPttGetTxPowerReport) + PTT_HEADER_LENGTH;
@@ -4328,30 +3751,22 @@ static VOS_STATUS wlan_ftm_priv_get_txrate(hdd_adapter_t *pAdapter,char *pTxRate
 
     status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
 
-    if (status != VOS_STATUS_SUCCESS)
+    if(status != VOS_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:wlan_ftm_postmsg failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:wlan_ftm_postmsg failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
-    ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                                msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret )
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("wait on ftm_comp_var failed %ld"), ret);
-    }
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
 
-    if (pMsgBuf->msgResponse == PTT_STATUS_SUCCESS) {
+    if(pMsgBuf->msgResponse == PTT_STATUS_SUCCESS) {
 
        rate_index = pMsgBody->GetTxPowerReport.rate;
     }
     else {
        /*Return the default rate*/
        //rate_index = HAL_PHY_RATE_11A_6_MBPS;
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s: PTT_MSG_GET_TX_POWER_REPORT failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s: PTT_MSG_GET_TX_POWER_REPORT failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
@@ -4362,12 +3777,13 @@ static VOS_STATUS wlan_ftm_priv_get_txrate(hdd_adapter_t *pAdapter,char *pTxRate
     }
     if(ii >= SIZE_OF_TABLE(rateName_rateIndex_tbl))
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Invalid Rate Index",__func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Invalid Rate Index\n",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
     strlcpy(pTxRate,rateName_rateIndex_tbl[ii].rate_str, WE_FTM_MAX_STR_LEN);
 done:
+    vos_mem_free((v_VOID_t * )pMsgBuf);
 
     return status;
 
@@ -4389,18 +3805,22 @@ done:
 
 static VOS_STATUS wlan_ftm_priv_get_rx_pkt_count(hdd_adapter_t *pAdapter,v_U16_t *pRxPktCnt)
 {
+    tPttMsgbuffer *pMsgBuf;
     uPttMsgs *pMsgBody;
     VOS_STATUS status;
-    long ret;
     hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
 
-    if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
+    if(pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ftm has not started. Please start the ftm. ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ftm has not started. Please start the ftm. ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
-    vos_mem_set(pMsgBuf, sizeof(tPttMsgbuffer), 0);
+    pMsgBuf = (tPttMsgbuffer *)vos_mem_malloc(sizeof(tPttMsgbuffer));
+    if(pMsgBuf == NULL)
+    {
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:pMsgBuf is NULL",__func__);
+        return VOS_STATUS_E_NOMEM;
+    }
     init_completion(&pHddCtx->ftm.ftm_comp_var);
     pMsgBuf->msgId = PTT_MSG_GET_RX_PKT_COUNTS;
     pMsgBuf->msgBodyLength = sizeof(tMsgPttGetRxPktCounts) + PTT_HEADER_LENGTH;
@@ -4409,30 +3829,23 @@ static VOS_STATUS wlan_ftm_priv_get_rx_pkt_count(hdd_adapter_t *pAdapter,v_U16_t
 
     status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
 
-    if (status != VOS_STATUS_SUCCESS)
+    if(status != VOS_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:wlan_ftm_postmsg failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:wlan_ftm_postmsg failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
-    ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                                 msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret )
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("wait on ftm_comp_var failed %ld"), ret);
-    }
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
 
-    if (pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
+    if(pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ptt response status failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ptt response status failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
     *pRxPktCnt = pMsgBody->GetRxPktCounts.counters.totalRxPackets;
 done:
+    vos_mem_free((v_VOID_t * )pMsgBuf);
 
     return status;
 }
@@ -4453,18 +3866,23 @@ done:
 
 static VOS_STATUS wlan_ftm_priv_get_rx_rssi(hdd_adapter_t *pAdapter,char *buf)
 {
+    tPttMsgbuffer *pMsgBuf;
     uPttMsgs *pMsgBody;
     VOS_STATUS status;
     hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
-    long ret;
+   int ret;
 
-    if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
+    if(pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ftm has not started. Please start the ftm. ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ftm has not started. Please start the ftm. ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
-    vos_mem_set(pMsgBuf, sizeof(tPttMsgbuffer), 0);
+    pMsgBuf = (tPttMsgbuffer *)vos_mem_malloc(sizeof(tPttMsgbuffer));
+    if(pMsgBuf == NULL)
+    {
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:pMsgBuf is NULL",__func__);
+        return VOS_STATUS_E_NOMEM;
+    }
     init_completion(&pHddCtx->ftm.ftm_comp_var);
     pMsgBuf->msgId = PTT_MSG_GET_RX_RSSI;
     pMsgBuf->msgBodyLength = sizeof(tMsgPttGetRxRssi) + PTT_HEADER_LENGTH;
@@ -4473,25 +3891,17 @@ static VOS_STATUS wlan_ftm_priv_get_rx_rssi(hdd_adapter_t *pAdapter,char *buf)
 
     status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
 
-    if (status != VOS_STATUS_SUCCESS)
+    if(status != VOS_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:wlan_ftm_postmsg failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:wlan_ftm_postmsg failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
-    ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                                msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret )
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("wait on ftm_comp_var failed %ld"), ret);
-    }
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
 
-    if (pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
+    if(pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                    "%s:Ptt response status failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ptt response status failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
@@ -4506,6 +3916,7 @@ static VOS_STATUS wlan_ftm_priv_get_rx_rssi(hdd_adapter_t *pAdapter,char *buf)
    }
 
 done:
+    vos_mem_free((v_VOID_t * )pMsgBuf);
 
     return status;
 }
@@ -4527,7 +3938,12 @@ done:
 static VOS_STATUS wlan_ftm_priv_get_mac_address(hdd_adapter_t *pAdapter,char *buf)
 {
     v_BOOL_t itemIsValid = VOS_FALSE;
-    v_U8_t macAddr[VOS_MAC_ADDRESS_LEN] = {0, 0x0a, 0xf5, 4,5, 6};
+
+    /* Motorola, BEGIN IKLOCSEN-984 Return all MACs */
+    v_MACADDR_t macAddr[VOS_MAX_CONCURRENCY_PERSONA];
+    v_U8_t      macLoop;
+    /* Motorola, END IKLOCSEN-984 Return all MACs */
+
     int ret;
 
     hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
@@ -4542,28 +3958,37 @@ static VOS_STATUS wlan_ftm_priv_get_mac_address(hdd_adapter_t *pAdapter,char *bu
     {
        if (itemIsValid == VOS_TRUE)
        {
-            vos_nv_readMacAddress(macAddr);
+          /* Motorola, BEGIN IKLOCSEN-984 Return all MACs */
+          vos_nv_readMultiMacAddress((v_U8_t *)&macAddr[0].bytes[0], VOS_MAX_CONCURRENCY_PERSONA);
 
-         ret = snprintf(buf, WE_FTM_MAX_STR_LEN,
-                             "%02x:%02x:%02x:%02x:%02x:%02x",
-                        MAC_ADDR_ARRAY(macAddr));
-         if( ret < 0 || ret >= WE_FTM_MAX_STR_LEN )
+         for(macLoop = 0; macLoop < VOS_MAX_CONCURRENCY_PERSONA; macLoop++)
          {
-             return VOS_STATUS_E_FAILURE;
+             ret = snprintf(buf, WE_FTM_MAX_STR_LEN,
+                            "%02x:%02x:%02x:%02x:%02x:%02x",
+                            MAC_ADDR_ARRAY(&macAddr[macLoop].bytes[0]));
+
+             if( ret < 0 || ret >= WE_FTM_MAX_STR_LEN )
+             {
+                return VOS_STATUS_E_FAILURE;
+             }
          }
-       }
+      }
    }
    else
    {
-         /*Return Hard coded mac address*/
-      ret = snprintf(buf, WE_FTM_MAX_STR_LEN,
-                            "%02x:%02x:%02x:%02x:%02x:%02x",
-                     MAC_ADDR_ARRAY(macAddr));
-
-      if( ret < 0 || ret >= WE_FTM_MAX_STR_LEN )
+      /* Return Hard coded mac address */
+      for(macLoop = 0; macLoop < VOS_MAX_CONCURRENCY_PERSONA; macLoop++)
       {
-          return VOS_STATUS_E_FAILURE;
+          ret = snprintf(buf, WE_FTM_MAX_STR_LEN,
+                         "%02x:%02x:%02x:%02x:%02x:%02x",
+                         MAC_ADDR_ARRAY(&macAddr[macLoop].bytes[0]));
+
+          if( ret < 0 || ret >= WE_FTM_MAX_STR_LEN )
+          {
+              return VOS_STATUS_E_FAILURE;
+          }
       }
+      /* Motorola, END IKLOCSEN-984 Return all MACs */
    }
     return VOS_STATUS_SUCCESS;
 }
@@ -4585,76 +4010,104 @@ static VOS_STATUS wlan_ftm_priv_get_mac_address(hdd_adapter_t *pAdapter,char *bu
 
 static VOS_STATUS wlan_ftm_priv_set_mac_address(hdd_adapter_t *pAdapter,char *buf)
 {
+    tPttMsgbuffer *pMsgBuf;
     uPttMsgs *pMsgBody;
     VOS_STATUS status;
-    int macAddr[VOS_MAC_ADDRESS_LEN];
+    int macAddr[VOS_MAC_ADDRESS_LEN * VOS_MAX_CONCURRENCY_PERSONA]; // Motorola, IKLOCSEN-984 Set all MACs
     v_U8_t *pMacAddress;
     v_U8_t  ii;
-    hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
-    long ret;
+    v_U8_t  macLoop; // Motorola, IKLOCSEN-984 Set all MACs
 
-    if (pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
+    hdd_context_t *pHddCtx = (hdd_context_t *)pAdapter->pHddCtx;
+
+    if(pHddCtx->ftm.ftm_state != WLAN_FTM_STARTED)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ftm has not started. Please start the ftm. ", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ftm has not started. Please start the ftm. ",__func__);
         return VOS_STATUS_E_FAILURE;
     }
-    vos_mem_set(pMsgBuf, sizeof(tPttMsgbuffer), 0);
+    pMsgBuf = (tPttMsgbuffer *)vos_mem_malloc(sizeof(tPttMsgbuffer));
+    if(pMsgBuf == NULL)
+    {
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:pMsgBuf is NULL",__func__);
+        return VOS_STATUS_E_NOMEM;
+    }
+#if 0 // Motorola, IKLOCSEN-984 Set all MACs
     init_completion(&pHddCtx->ftm.ftm_comp_var);
+#endif // Motorola, IKLOCSEN-984 Set all MACs
     pMsgBuf->msgId = PTT_MSG_SET_NV_FIELD;
     pMsgBuf->msgBodyLength = sizeof(tMsgPttSetNvField) + PTT_HEADER_LENGTH;
 
     pMsgBody = &pMsgBuf->msgBody;
     pMsgBody->SetNvField.nvField = NV_COMMON_MAC_ADDR;
 
-    /*We get the mac address in string format "XX:XX:XX:XX:XX:XX" convert to hex*/
-    if (6 != sscanf(buf,"%02x:%02x:%02x:%02x:%02x:%02x",&macAddr[0],(int*)&macAddr[1],(int*)&macAddr[2],(int*)&macAddr[3],(int*)&macAddr[4],(int*)&macAddr[5]))
-    {
-       VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                 "Invalid MacAddress Input %s", buf);
-       return VOS_STATUS_E_FAILURE;
+    /* Motorola, BEGIN IKLOCSEN-984 Set all MACS */
+    for(macLoop = 0; macLoop < VOS_MAX_CONCURRENCY_PERSONA; macLoop++) {
+       /*We get the mac address in string format "XX:XX:XX:XX:XX:XX" convert to hex*/
+       sscanf(buf,"%02x:%02x:%02x:%02x:%02x:%02x",\
+              (int*)&macAddr[macLoop * VOS_MAX_CONCURRENCY_PERSONA + 0],\
+              (int*)&macAddr[macLoop * VOS_MAX_CONCURRENCY_PERSONA + 1],\
+              (int*)&macAddr[macLoop * VOS_MAX_CONCURRENCY_PERSONA + 2],\
+              (int*)&macAddr[macLoop * VOS_MAX_CONCURRENCY_PERSONA + 3],\
+              (int*)&macAddr[macLoop * VOS_MAX_CONCURRENCY_PERSONA + 4],\
+              (int*)&macAddr[macLoop * VOS_MAX_CONCURRENCY_PERSONA + 5]);
+
+       VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO_HIGH,\
+                 "MacAddress[%d] = %02x:%02x:%02x:%02x:%02x:%02x",\
+                 macLoop,\
+                 MAC_ADDR_ARRAY(&macAddr[macLoop * VOS_MAX_CONCURRENCY_PERSONA]));
+
+       printk(KERN_INFO "MacAddress[%d] = %02x:%02x:%02x:%02x:%02x:%02x\n",\
+              macLoop,\
+              MAC_ADDR_ARRAY(&macAddr[macLoop * VOS_MAX_CONCURRENCY_PERSONA]));
+
+       pMacAddress = &pMsgBody->SetNvField.fieldData.macAddr.macAddr1[macLoop * VOS_MAX_CONCURRENCY_PERSONA];
+
+       for(ii = 0; ii < VOS_MAC_ADDRESS_LEN; ii++) {
+          pMacAddress[macLoop * VOS_MAX_CONCURRENCY_PERSONA + ii] =\
+          (v_U8_t)macAddr[macLoop * VOS_MAX_CONCURRENCY_PERSONA + ii];
+       }
+
+
+       VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO_HIGH,\
+                 "pMacAddress[%d] = %02x:%02x:%02x:%02x:%02x:%02x",\
+                 macLoop,\
+                 MAC_ADDR_ARRAY(&pMacAddress[macLoop * VOS_MAX_CONCURRENCY_PERSONA]));
+
+       printk(KERN_INFO "pMacAddress[%d] = %02x:%02x:%02x:%02x:%02x:%02x\n",\
+              macLoop,\
+              MAC_ADDR_ARRAY(&pMacAddress[macLoop * VOS_MAX_CONCURRENCY_PERSONA]));
     }
 
-    VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO_HIGH,
-              "MacAddress = " MAC_ADDRESS_STR, MAC_ADDR_ARRAY(macAddr));
+    if (wlan_hdd_process_ftm_host_cmd(pHddCtx, pMsgBuf) < 0)
+    {
+        printk(KERN_INFO "wlan_hdd_process_ftm_host_cmd PTT_MSG_SET_NV_FIELD failed\n");
+        status = VOS_STATUS_E_FAILURE;
+        goto done;
+    }
+#if 0
+   /* Motorola, END IKLOCSEN-984 Set all MACS */
 
-
-    pMacAddress = &pMsgBody->SetNvField.fieldData.macAddr.macAddr1[0];
-
-    for(ii = 0; ii < VOS_MAC_ADDRESS_LEN; ii++)
-       pMacAddress[ii] = (v_U8_t)macAddr[ii];
-
-
-    VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO_HIGH,
-              "pMacAddress = " MAC_ADDRESS_STR, MAC_ADDR_ARRAY(pMacAddress));
     status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
 
-    if (status != VOS_STATUS_SUCCESS)
+    if(status != VOS_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:wlan_ftm_postmsg failed!!", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:wlan_ftm_postmsg failed!!",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
-    ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                                msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret )
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("wait on ftm_comp_var failed %ld"), ret);
-    }
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
 
-    if (pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
+    if(pMsgBuf->msgResponse != PTT_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:Ptt response status failed", __func__);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:Ptt response status failed",__func__);
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
 
-    VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO_HIGH, "NV_COMMON_MAC_ADDR Success!!!");
+    VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO_HIGH, "NV_COMMON_MAC_ADDR Success!!!\n");
 
     init_completion(&pHddCtx->ftm.ftm_comp_var);
+#endif // Motorola, IKLOCSEN-984 Set all MACs
     memset( pMsgBuf,0,sizeof(tPttMsgbuffer));
 
     pMsgBuf->msgId = PTT_MSG_STORE_NV_TABLE;
@@ -4664,24 +4117,30 @@ static VOS_STATUS wlan_ftm_priv_set_mac_address(hdd_adapter_t *pAdapter,char *bu
 
     pMsgBody->StoreNvTable.nvTable = NV_FIELDS_IMAGE;
 
-    status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
-
-    if (status != VOS_STATUS_SUCCESS)
+    /* Motorola, BEGIN IKLOCSEN-984 Set all MACs */
+    if (wlan_hdd_process_ftm_host_cmd(pHddCtx, pMsgBuf) < 0)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL,
-                   "%s:wlan_ftm_postmsg failed!!!!", __func__);
+        printk(KERN_INFO "wlan_hdd_process_ftm_host_cmd PTT_MSG_STORE_NV_TABLE failed\n");
         status = VOS_STATUS_E_FAILURE;
         goto done;
     }
 
-    ret = wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var,
-                                msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
-    if (0 >= ret )
+#if 0
+    /* Motorola, END IKLOCSEN-984 Set all MACs */
+
+    status = wlan_ftm_postmsg((v_U8_t*)pMsgBuf,pMsgBuf->msgBodyLength);
+
+    if(status != VOS_STATUS_SUCCESS)
     {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
-                   FL("wait on ftm_comp_var failed %ld"), ret);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_FATAL, "%s:wlan_ftm_postmsg failed!!!!",__func__);
+        status = VOS_STATUS_E_FAILURE;
+        goto done;
     }
+
+    wait_for_completion_interruptible_timeout(&pHddCtx->ftm.ftm_comp_var, msecs_to_jiffies(WLAN_FTM_COMMAND_TIME_OUT));
+#endif // Motorola, IKLOCSEN-984 Set all MACs
 done:
+    vos_mem_free((v_VOID_t * )pMsgBuf);
 
     return VOS_STATUS_SUCCESS;
 }
@@ -4690,86 +4149,50 @@ done:
 static int iw_ftm_setchar_getnone(struct net_device *dev, struct iw_request_info *info,
                        union iwreq_data *wrqu, char *extra)
 {
-    int ret,sub_cmd;
-    unsigned int length;
-    char *pointer,*param;
+    int sub_cmd = wrqu->data.flags;
+    int ret = 0; /* success */
     VOS_STATUS status;
-    hdd_adapter_t *pAdapter;
+    hdd_adapter_t *pAdapter = (netdev_priv(dev));
 
-    ret =0;
-    pointer = wrqu->data.pointer;
-    length = wrqu->data.length;
-    sub_cmd = wrqu->data.flags;
-    pAdapter = (hdd_adapter_t *)netdev_priv(dev);
-
-    /* we cannot use iotctl_private_iw_point in kernel to allocate memory
-     * to store data from userspace as IW_SETCHAR_GETNONE is defined as
-     * odd number which assigns set_args to zero.we assisgn memory using
-     * kzalloc here to hold userspace data
-     */
-    param = kzalloc(length + 1, GFP_KERNEL);
-    if (!param)
-        return -EINVAL;
-
-    if (copy_from_user(param, pointer, length))
-    {
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO,
-              "%s:Failed to get user data %s", __func__, param);
-
-        ret = -EINVAL;
-        goto OUT;
-    }
-
-    VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO,
-              "%s: Received length %d", __func__, length);
-
-    VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO,
-              "%s: Received parameters %s", __func__,param);
+    VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO, "%s: Received length %d", __func__, wrqu->data.length);
+    VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO, "%s: Received data %s", __func__, (char*)wrqu->data.pointer);
 
     switch(sub_cmd)
     {
        case WE_SET_MAC_ADDRESS:
        {
 
-          VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO,
-                    "SET MAC ADDRESS");
+          VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO, "SET MAC ADDRESS\n");
 
-          status  = wlan_ftm_priv_set_mac_address(pAdapter,param);
+          status  = wlan_ftm_priv_set_mac_address(pAdapter,(char*)wrqu->data.pointer);
 
           if(status != VOS_STATUS_SUCCESS)
           {
-             hddLog(VOS_TRACE_LEVEL_FATAL,
-                    "wlan_ftm_priv_set_mac_address Failed =%d",status);
-
+             hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_set_mac_address Failed =%d\n",status);
              ret = -EINVAL;
           }
 
-          break;
        }
+       break;
        case WE_SET_TX_RATE:
        {
-            status  = wlan_ftm_priv_set_txrate(pAdapter,param);
+            status  = wlan_ftm_priv_set_txrate(pAdapter,(char*)wrqu->data.pointer);
 
             if(status != VOS_STATUS_SUCCESS)
             {
-               hddLog(VOS_TRACE_LEVEL_FATAL,
-                      "wlan_ftm_priv_set_txrate Failed =%d",status);
-
-                ret = -EINVAL;
+               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_set_txrate Failed =%d\n",status);
+               ret = -EINVAL;
             }
 
             break;
-       }
+        }
        default:
        {
-           hddLog(LOGE, "%s: Invalid sub command %d",__func__, sub_cmd);
+           hddLog(LOGE, "%s: Invalid sub command %d\n",__func__, sub_cmd);
            ret = -EINVAL;
            break;
        }
     }
-
-OUT:
-    kfree(param);
     return ret;
 }
 
@@ -4791,7 +4214,7 @@ static int iw_ftm_setint_getnone(struct net_device *dev, struct iw_request_info 
 
             if(status != VOS_STATUS_SUCCESS)
             {
-               hddLog(VOS_TRACE_LEVEL_FATAL,"%s Failed =%d",__func__, status);
+               hddLog(VOS_TRACE_LEVEL_FATAL,"%s Failed =%d\n",__func__, status);
                ret = -EINVAL;
             }
 
@@ -4803,7 +4226,7 @@ static int iw_ftm_setint_getnone(struct net_device *dev, struct iw_request_info 
 
             if(status != VOS_STATUS_SUCCESS)
             {
-               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_start_stop_tx_pktgen Failed =%d",status);
+               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_start_stop_tx_pktgen Failed =%d\n",status);
                ret = -EINVAL;
             }
             break;
@@ -4813,7 +4236,7 @@ static int iw_ftm_setint_getnone(struct net_device *dev, struct iw_request_info 
 
             if(status != VOS_STATUS_SUCCESS)
             {
-               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_set_txifs Failed =%d",status);
+               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_set_txifs Failed =%d\n",status);
                ret = -EINVAL;
             }
             break;
@@ -4823,7 +4246,7 @@ static int iw_ftm_setint_getnone(struct net_device *dev, struct iw_request_info 
 
             if(status != VOS_STATUS_SUCCESS)
             {
-               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_set_txpktcnt Failed =%d",status);
+               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_set_txpktcnt Failed =%d\n",status);
                ret = -EINVAL;
             }
             break;
@@ -4833,7 +4256,7 @@ static int iw_ftm_setint_getnone(struct net_device *dev, struct iw_request_info 
 
             if(status != VOS_STATUS_SUCCESS)
             {
-               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_set_txpktlen Failed =%d",status);
+               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_set_txpktlen Failed =%d\n",status);
                ret = -EINVAL;
             }
             break;
@@ -4844,7 +4267,7 @@ static int iw_ftm_setint_getnone(struct net_device *dev, struct iw_request_info 
 
             if(status != VOS_STATUS_SUCCESS)
             {
-               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_set_channel Failed =%d",status);
+               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_set_channel Failed =%d\n",status);
                ret = -EINVAL;
             }
             break;
@@ -4855,7 +4278,7 @@ static int iw_ftm_setint_getnone(struct net_device *dev, struct iw_request_info 
 
             if(status != VOS_STATUS_SUCCESS)
             {
-               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_set_txpower Failed =%d",status);
+               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_set_txpower Failed =%d\n",status);
                ret = -EINVAL;
             }
             break;
@@ -4866,7 +4289,7 @@ static int iw_ftm_setint_getnone(struct net_device *dev, struct iw_request_info 
 
             if(status != VOS_STATUS_SUCCESS)
             {
-               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_rx_pkt_clear Failed =%d",status);
+               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_rx_pkt_clear Failed =%d\n",status);
                ret = -EINVAL;
             }
             break;
@@ -4877,7 +4300,7 @@ static int iw_ftm_setint_getnone(struct net_device *dev, struct iw_request_info 
 
             if(status != VOS_STATUS_SUCCESS)
             {
-               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_rx_mode Failed =%d",status);
+               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_rx_mode Failed =%d\n",status);
                ret = -EINVAL;
             }
             break;
@@ -4888,49 +4311,15 @@ static int iw_ftm_setint_getnone(struct net_device *dev, struct iw_request_info 
 
             if(status != VOS_STATUS_SUCCESS)
             {
-               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_enable_chain Failed =%d",status);
+               hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_enable_chain Failed =%d\n",status);
                ret = -EINVAL;
             }
             break;
-        }
-
-        case WE_SET_PWR_CNTL_MODE:
-        {
-            status  = wlan_ftm_priv_set_pwr_cntl_mode(pAdapter, set_value);
-            if (status != VOS_STATUS_SUCCESS)
-            {
-               hddLog(VOS_TRACE_LEVEL_FATAL, "set_pwr_cntl_mode failed = %d",
-                         status);
-               ret = -EINVAL;
-            }
-            break;
-        }
-
-        case WE_ENABLE_DPD:
-        {
-           status  = wlan_ftm_priv_enable_dpd(pAdapter, set_value);
-           if (status != VOS_STATUS_SUCCESS)
-           {
-              hddLog(VOS_TRACE_LEVEL_FATAL, "enable_dpd failed = %d", status);
-              ret = -EINVAL;
-           }
-           break;
-        }
-
-        case WE_SET_CB:
-        {
-           status  = wlan_ftm_priv_set_cb(pAdapter, set_value);
-           if (status != VOS_STATUS_SUCCESS)
-           {
-              hddLog(VOS_TRACE_LEVEL_FATAL, "set_cb failed = %d", status);
-              ret = -EINVAL;
-           }
-           break;
         }
 
         default:
         {
-            hddLog(LOGE, "Invalid IOCTL setvalue command %d value %d",
+            hddLog(LOGE, "Invalid IOCTL setvalue command %d value %d \n",
                 sub_cmd, set_value);
             break;
         }
@@ -4956,7 +4345,7 @@ static int iw_ftm_setnone_getint(struct net_device *dev, struct iw_request_info 
 
            if(status != VOS_STATUS_SUCCESS)
            {
-              hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_get_channel Failed =%d",status);
+              hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_get_channel Failed =%d\n",status);
               ret = -EINVAL;
            }
            break;
@@ -4967,7 +4356,7 @@ static int iw_ftm_setnone_getint(struct net_device *dev, struct iw_request_info 
 
            if(status != VOS_STATUS_SUCCESS)
            {
-              hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_get_txpower Failed =%d",status);
+              hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_get_txpower Failed =%d\n",status);
               ret = -EINVAL;
            }
            break;
@@ -4978,7 +4367,7 @@ static int iw_ftm_setnone_getint(struct net_device *dev, struct iw_request_info 
 
            if(status != VOS_STATUS_SUCCESS)
            {
-              hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_get_rx_pkt_count Failed =%d",status);
+              hddLog(VOS_TRACE_LEVEL_FATAL,"wlan_ftm_priv_get_rx_pkt_count Failed =%d\n",status);
               ret = -EINVAL;
            }
            break;
@@ -5008,7 +4397,7 @@ static int iw_ftm_get_char_setnone(struct net_device *dev, struct iw_request_inf
 
             if(status != VOS_STATUS_SUCCESS)
             {
-                hddLog(VOS_TRACE_LEVEL_FATAL, "wlan_ftm_priv_get_mac_address failed =%d",status);
+                hddLog(VOS_TRACE_LEVEL_FATAL, "wlan_ftm_priv_get_mac_address failed =%d\n",status);
                 return -EINVAL;
             }
             wrqu->data.length = strlen(extra)+1;
@@ -5020,7 +4409,7 @@ static int iw_ftm_get_char_setnone(struct net_device *dev, struct iw_request_inf
 
             if(status != VOS_STATUS_SUCCESS)
             {
-                hddLog(VOS_TRACE_LEVEL_FATAL, "wlan_ftm_priv_get_txrate failed =%d",status);
+                hddLog(VOS_TRACE_LEVEL_FATAL, "wlan_ftm_priv_get_txrate failed =%d\n",status);
                 return -EINVAL;
             }
 
@@ -5033,7 +4422,7 @@ static int iw_ftm_get_char_setnone(struct net_device *dev, struct iw_request_inf
 
             if(status != VOS_STATUS_SUCCESS)
             {
-                hddLog(VOS_TRACE_LEVEL_FATAL, "wlan_ftm_priv_get_mac_address failed =%d",status);
+                hddLog(VOS_TRACE_LEVEL_FATAL, "wlan_ftm_priv_get_mac_address failed =%d\n",status);
                 return -EINVAL;
             }
             wrqu->data.length = strlen(extra)+1;
@@ -5045,7 +4434,7 @@ static int iw_ftm_get_char_setnone(struct net_device *dev, struct iw_request_inf
 
             if(status != VOS_STATUS_SUCCESS)
             {
-                hddLog(VOS_TRACE_LEVEL_FATAL, "wlan_ftm_priv_get_status failed =%d",status);
+                hddLog(VOS_TRACE_LEVEL_FATAL, "wlan_ftm_priv_get_status failed =%d\n",status);
                 return -EINVAL;
             }
 
@@ -5058,7 +4447,7 @@ static int iw_ftm_get_char_setnone(struct net_device *dev, struct iw_request_inf
 
             if(status != VOS_STATUS_SUCCESS)
             {
-                hddLog(VOS_TRACE_LEVEL_FATAL, "wlan_ftm_priv_get_rx_rssi failed =%d",status);
+                hddLog(VOS_TRACE_LEVEL_FATAL, "wlan_ftm_priv_get_rx_rssi failed =%d\n",status);
                 return -EINVAL;
             }
 
@@ -5067,7 +4456,7 @@ static int iw_ftm_get_char_setnone(struct net_device *dev, struct iw_request_inf
         }
         default:
         {
-            hddLog(LOGE, "%s: Invalid IOCTL command %d", __func__, sub_cmd );
+            hddLog(LOGE, "Invalid IOCTL command %d  \n",  sub_cmd );
             break;
         }
     }
@@ -5112,7 +4501,7 @@ VOS_STATUS wlan_write_to_efs (v_U8_t *pData, v_U16_t data_len)
    if(pHddCtx->ftm.cmd_iwpriv == TRUE) {
        if( ptt_sock_send_msg_to_app(wmsg, 0, ANI_NL_MSG_PUMAC, pHddCtx->ptt_pid) < 0) {
 
-           VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR, ("Ptt Socket error sending message to the app!!"));
+           VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR, ("Ptt Socket error sending message to the app!!\n"));
            vos_mem_free((v_VOID_t*)wmsg);
            return VOS_STATUS_E_FAILURE;
        }
@@ -5120,7 +4509,7 @@ VOS_STATUS wlan_write_to_efs (v_U8_t *pData, v_U16_t data_len)
    else {
     if( ptt_sock_send_msg_to_app(wmsg, 0, ANI_NL_MSG_PUMAC, pHddCtx->ftm.wnl->nlh.nlmsg_pid) < 0) {
 
-        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR, ("Ptt Socket error sending message to the app!!"));
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR, ("Ptt Socket error sending message to the app!!\n"));
         vos_mem_free((v_VOID_t*)wmsg);
         return VOS_STATUS_E_FAILURE;
     }
@@ -5146,7 +4535,7 @@ static int iw_ftm_setnone_getnone(struct net_device *dev, struct iw_request_info
             v_U8_t *pu8buf,*pTempBuf;
             v_U16_t size;
             size = sizeof(v_U32_t) + sizeof(sHalNv);
-            hddLog(VOS_TRACE_LEVEL_INFO_HIGH,"HAL NV Size =%d",size);
+            hddLog(VOS_TRACE_LEVEL_INFO_HIGH,"HAL NV Size =%d\n",size);
             pu8buf = vos_mem_malloc(size);
             if(pu8buf == NULL)
             {
@@ -5240,21 +4629,6 @@ static const struct iw_priv_args we_ftm_private_args[] = {
         IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1,
         0,
         "ena_chain" },
-
-    {   WE_SET_PWR_CNTL_MODE,
-        IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1,
-        0,
-        "pwr_cntl_mode" },
-
-    {   WE_ENABLE_DPD,
-        IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1,
-        0,
-        "ena_dpd" },
-
-    {   WE_SET_CB,
-        IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1,
-        0,
-        "set_cb" },
 
     /* handlers for main ioctl */
     {   WLAN_FTM_PRIV_SET_NONE_GET_INT,
@@ -5389,7 +4763,6 @@ VOS_STATUS WLANFTM_McProcessMsg (v_VOID_t *message)
 
     if (pHddCtx->ftm.cmd_iwpriv == TRUE) {
 
-        memcpy((char*)pMsgBuf, (char*)message, pFtmMsgRsp->msgBodyLength);
         complete(&pHddCtx->ftm.ftm_comp_var);
     }
     else {
@@ -5413,7 +4786,7 @@ VOS_STATUS WLANFTM_McProcessMsg (v_VOID_t *message)
 
     if (!VOS_IS_STATUS_SUCCESS(vos_status))
     {
-       VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR, ("ERROR: HDD vos_event_set failed!!"));
+       VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR, ("ERROR: HDD vos_event_set failed!!\n"));
        return VOS_STATUS_E_FAILURE;
     }
     }
