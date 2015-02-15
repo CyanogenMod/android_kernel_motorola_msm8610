@@ -425,10 +425,10 @@ static int mdp3_ctrl_get_source_format(u32 imgType)
 	return format;
 }
 
-static int mdp3_ctrl_get_pack_pattern(struct msm_fb_data_type *mfd)
+static int mdp3_ctrl_get_pack_pattern(u32 imgType)
 {
 	int packPattern = MDP3_DMA_OUTPUT_PACK_PATTERN_RGB;
-	if (mfd->fb_imgType == MDP_RGBA_8888)
+	if (imgType == MDP_RGBA_8888)
 		packPattern = MDP3_DMA_OUTPUT_PACK_PATTERN_BGR;
 	return packPattern;
 }
@@ -529,7 +529,7 @@ static int mdp3_ctrl_dma_init(struct msm_fb_data_type *mfd,
 	outputConfig.out_sel = mdp3_ctrl_get_intf_type(mfd);
 	outputConfig.bit_mask_polarity = 0;
 	outputConfig.color_components_flip = 0;
-	outputConfig.pack_pattern = mdp3_ctrl_get_pack_pattern(mfd);
+	outputConfig.pack_pattern = mdp3_ctrl_get_pack_pattern(mfd->fb_imgType);
 	outputConfig.pack_align = MDP3_DMA_OUTPUT_PACK_ALIGN_LSB;
 	outputConfig.color_comp_out_bits = (MDP3_DMA_OUTPUT_COMP_BITS_8 << 4) |
 					(MDP3_DMA_OUTPUT_COMP_BITS_8 << 2)|
@@ -886,9 +886,9 @@ static int mdp3_overlay_set(struct msm_fb_data_type *mfd,
 				dma->source_config.format != format) {
 			dma->source_config.format = format;
 			dma->source_config.stride = stride;
-			mdp3_clk_enable(1, 0);
-			mdp3_session->dma->dma_config_source(dma);
-			mdp3_clk_enable(0, 0);
+			dma->output_config.pack_pattern =
+				mdp3_ctrl_get_pack_pattern(req->src.format);
+			dma->update_src_cfg = true;
 		}
 		mdp3_session->overlay.id = 1;
 		req->id = 1;
@@ -912,12 +912,6 @@ static int mdp3_overlay_unset(struct msm_fb_data_type *mfd, int ndx)
 	mutex_lock(&mdp3_session->lock);
 
 	if (mdp3_session->overlay.id == ndx && ndx == 1) {
-		struct mdp3_dma *dma = mdp3_session->dma;
-		dma->source_config.format = format;
-		dma->source_config.stride = fix->line_length;
-		mdp3_clk_enable(1, 0);
-		mdp3_session->dma->dma_config_source(dma);
-		mdp3_clk_enable(0, 0);
 		mdp3_session->overlay.id = MSMFB_NEW_REQUEST;
 		mdp3_bufq_deinit(&mdp3_session->bufq_in);
 	} else {
@@ -1756,6 +1750,43 @@ static struct attribute_group kcal_fs_attr_group = {
 	.attrs = kcal_fs_attrs,
 };
 
+static int mdp3_overlay_prepare(struct msm_fb_data_type *mfd,
+		struct mdp_overlay_list __user *user_ovlist)
+{
+	struct mdp_overlay_list ovlist;
+	struct mdp3_session_data *mdp3_session = mfd->mdp.private1;
+	struct mdp_overlay *req;
+	int rc;
+
+	if (!mdp3_session)
+		return -ENODEV;
+
+	req = &mdp3_session->req_overlay;
+
+	if (copy_from_user(&ovlist, user_ovlist, sizeof(ovlist)))
+		return -EFAULT;
+
+	if (ovlist.num_overlays != 1) {
+		pr_err("OV_PREPARE failed: only 1 overlay allowed\n");
+		return -EINVAL;
+	}
+
+	if (copy_from_user(req, ovlist.overlay_list[0], sizeof(*req)))
+		return -EFAULT;
+
+	rc = mdp3_overlay_set(mfd, req);
+	if (!IS_ERR_VALUE(rc)) {
+		if (copy_to_user(ovlist.overlay_list[0], req, sizeof(*req)))
+			return -EFAULT;
+	}
+
+	if (put_user(IS_ERR_VALUE(rc) ? 0 : 1,
+			&user_ovlist->processed_overlays))
+		return -EFAULT;
+
+	return rc;
+}
+
 static int mdp3_ctrl_ioctl_handler(struct msm_fb_data_type *mfd,
 					u32 cmd, void __user *argp)
 {
@@ -1868,6 +1899,8 @@ static int mdp3_ctrl_ioctl_handler(struct msm_fb_data_type *mfd,
 			rc = dsi_panel_ioctl_handler(pdata, cmd, argp);
 			mutex_unlock(&mdp3_session->lock);
 		}
+	case MSMFB_OVERLAY_PREPARE:
+		rc = mdp3_overlay_prepare(mfd, argp);
 		break;
 	default:
 		break;

@@ -185,6 +185,15 @@ int msm_vidc_g_ctrl(void *instance, struct v4l2_control *control)
 		return msm_venc_g_ctrl(instance, control);
 	return -EINVAL;
 }
+int msm_vidc_s_ext_ctrl(void *instance, struct v4l2_ext_controls *control)
+{
+	struct msm_vidc_inst *inst = instance;
+	if (!inst || !control)
+		return -EINVAL;
+	if (inst->session_type == MSM_VIDC_ENCODER)
+		return msm_venc_s_ext_ctrl(instance, control);
+	return -EINVAL;
+}
 int msm_vidc_reqbufs(void *instance, struct v4l2_requestbuffers *b)
 {
 	struct msm_vidc_inst *inst = instance;
@@ -1200,7 +1209,6 @@ void *msm_vidc_open(int core_id, int session_type)
 	INIT_LIST_HEAD(&inst->pendingq);
 	INIT_LIST_HEAD(&inst->internalbufs);
 	INIT_LIST_HEAD(&inst->persistbufs);
-	INIT_LIST_HEAD(&inst->ctrl_clusters);
 	INIT_LIST_HEAD(&inst->registered_bufs);
 	INIT_LIST_HEAD(&inst->outputbufs);
 	init_waitqueue_head(&inst->kernel_event_queue);
