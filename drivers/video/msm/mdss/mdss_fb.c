@@ -2391,7 +2391,7 @@ static int mdss_fb_set_lut(struct fb_info *info, void __user *p)
 	if (ret)
 		return ret;
 
-	mfd->mdp.lut_update(mfd, &cmap, NULL);
+	mfd->mdp.lut_update(mfd, &cmap);
 	return 0;
 }
 
