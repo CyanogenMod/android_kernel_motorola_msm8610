@@ -1,0 +1,11 @@
+Upstream Info:
+Source code is from Motorola's LXC22.99 8610 source at
+https://github.com/MotorolaMobilityLLC/kernel-msm/commits/MMI-LXC22.99-13
+
+How to build:
+export ARCH=arm
+export SUBARCH=arm
+export CROSS_COMPILE=arm-linux-gnueabihf-
+make mrproper
+make cm_otus_defconfig
+make -j10
