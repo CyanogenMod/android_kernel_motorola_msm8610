@@ -1409,6 +1409,8 @@ static int soc_check_aux_dev(struct snd_soc_card *card, int num)
 			return 0;
 	}
 
+	printk(KERN_WARNING "%s: failed to find codec, deferring probe\n", __func__);
+
 	return -EPROBE_DEFER;
 }
 

@@ -331,10 +331,14 @@ int snd_ctl_add(struct snd_card *card, struct snd_kcontrol *kcontrol)
 	unsigned int idx;
 	int err = -EINVAL;
 
-	if (! kcontrol)
+	if (!kcontrol) {
+		snd_printk(KERN_ERR "failed to add sound control: kcontrol is NULL\n");
 		return err;
-	if (snd_BUG_ON(!card || !kcontrol->info))
+	}
+	if (snd_BUG_ON(!card || !kcontrol->info)) {
+		snd_printk(KERN_ERR "failed to add sound control: card or kcontrol->info is NULL\n");
 		goto error;
+	}
 	id = kcontrol->id;
 	down_write(&card->controls_rwsem);
 	if (snd_ctl_find_id(card, &id)) {

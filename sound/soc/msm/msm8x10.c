@@ -603,8 +603,11 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 
 	ret = snd_soc_add_codec_controls(codec, msm_snd_controls,
 					 ARRAY_SIZE(msm_snd_controls));
-	if (ret < 0)
+	if (ret < 0) {
+		pr_err("%s: snd_soc_add_codec_controls failed with error %i\n",
+			__func__, ret);
 		return ret;
+	}
 
 #ifdef CONFIG_SND_SOC_FSA8500
 	ret = fsa8500_hs_detect(codec);
@@ -635,6 +638,8 @@ static int msm_audrx_init(struct snd_soc_pcm_runtime *rtd)
 		snd_soc_dapm_enable_pin(dapm, "TPA6165 Headphone");
 		snd_soc_dapm_enable_pin(dapm, "TPA6165 Headset Mic");
 		snd_soc_dapm_sync(dapm);
+	} else {
+		pr_err("%s: tpa6165_hs_detect failed with error %i\n", __func__, ret);
 	}
 
 	return ret;

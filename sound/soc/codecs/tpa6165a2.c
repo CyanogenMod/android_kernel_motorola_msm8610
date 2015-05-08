@@ -1262,7 +1262,10 @@ int tpa6165_hs_detect(struct snd_soc_codec *codec)
 					i2c_get_clientdata(tpa6165_client);
 
 		if (tpa6165 == NULL)
+		{
+			pr_err("%s: tpa6165 client data is NULL\n", __func__);
 			return ret;
+		}
 
 		pr_debug("%s: hs and button jack", __func__);
 		if (tpa6165->hs_jack == NULL) {
@@ -1313,6 +1316,8 @@ int tpa6165_hs_detect(struct snd_soc_codec *codec)
 			regulator_set_optimum_mode(tpa6165->vdd, 0);
 
 		mutex_unlock(&tpa6165->lock);
+	} else {
+		pr_err("%s: tpa6165_client is NULL\n", __func__);
 	}
 
 	return ret;
