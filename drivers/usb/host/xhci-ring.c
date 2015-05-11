@@ -292,6 +292,7 @@ void xhci_ring_cmd_db(struct xhci_hcd *xhci)
 static int xhci_abort_cmd_ring(struct xhci_hcd *xhci)
 {
 	u64 temp_64;
+	int ret;
 
 	xhci_dbg(xhci, "Abort command ring\n");
 
@@ -309,7 +310,26 @@ static int xhci_abort_cmd_ring(struct xhci_hcd *xhci)
 	xhci->cmd_ring_state = CMD_RING_STATE_ABORTED;
 	xhci_write_64(xhci, temp_64 | CMD_RING_ABORT,
 			&xhci->op_regs->cmd_ring);
-	return 1;
+
+	/* Section 4.6.1.2 of xHCI 1.0 spec says software should
+	 * time the completion od all xHCI commands, including
+	 * the Command Abort operation. If software doesn't see
+	 * CRR negated in a timely manner (e.g. longer than 5
+	 * seconds), then it should assume that the there are
+	 * larger problems with the xHC and assert HCRST.
+	 */
+	ret = handshake(xhci, &xhci->op_regs->cmd_ring,
+			CMD_RING_RUNNING, 0, 5 * 1000 * 1000);
+	if (ret < 0) {
+		xhci_err(xhci, "Stopped the command ring failed, "
+				"maybe the host is dead\n");
+		xhci->xhc_state |= XHCI_STATE_DYING;
+		xhci_quiesce(xhci);
+		xhci_halt(xhci);
+		return -ESHUTDOWN;
+	}
+
+	return 0;
 }
 
 static int xhci_queue_cd(struct xhci_hcd *xhci,
@@ -362,38 +382,15 @@ int xhci_cancel_cmd(struct xhci_hcd *xhci, struct xhci_command *command,
 
 	/* abort command ring */
 	retval = xhci_abort_cmd_ring(xhci);
-	spin_unlock_irqrestore(&xhci->lock, flags);
-
-	if (!retval)
-		return 0;
-
-	/* Section 4.6.1.2 of xHCI 1.0 spec says software should
-	 * time the completion od all xHCI commands, including
-	 * the Command Abort operation. If software doesn't see
-	 * CRR negated in a timely manner (e.g. longer than 5
-	 * seconds), then it should assume that the there are
-	 * larger problems with the xHC and assert HCRST.
-	*/
-	retval = handshake(xhci, &xhci->op_regs->cmd_ring,
-			CMD_RING_RUNNING, 0, 5 * 1000 * 1000);
-	if (retval == 0)
-		return 0;
-
-	xhci_err(xhci, "Stopped the command ring failed,"
-		"maybe the host is dead\n");
-
-	spin_lock_irqsave(&xhci->lock, flags);
-	xhci->xhc_state |= XHCI_STATE_DYING;
-	spin_unlock_irqrestore(&xhci->lock, flags);
-
-	xhci_quiesce(xhci);
-	xhci_halt(xhci);
-
-	xhci_err(xhci, "Abort command ring failed\n");
-	usb_hc_died(xhci_to_hcd(xhci)->primary_hcd);
-	xhci_dbg(xhci, "xHCI host controller is dead.\n");
-
-	return -ESHUTDOWN;
+	if (retval) {
+		xhci_err(xhci, "Abort command ring failed\n");
+		if (unlikely(retval == -ESHUTDOWN)) {
+			spin_unlock_irqrestore(&xhci->lock, flags);
+			usb_hc_died(xhci_to_hcd(xhci)->primary_hcd);
+			xhci_dbg(xhci, "xHCI host controller is dead.\n");
+			return retval;
+		}
+	}
 
 fail:
 	spin_unlock_irqrestore(&xhci->lock, flags);
@@ -1321,6 +1318,43 @@ static int xhci_search_cmd_trb_in_cd_list(struct xhci_hcd *xhci,
 	return 0;
 }
 
+/*
+ * If the cmd_trb_comp_code is COMP_CMD_ABORT, we just check whether the
+ * trb pointed by the command ring dequeue pointer is the trb we want to
+ * cancel or not. And if the cmd_trb_comp_code is COMP_CMD_STOP, we will
+ * traverse the cancel_cmd_list to trun the all of the commands according
+ * to command descriptor to NO-OP trb.
+ */
+static int handle_stopped_cmd_ring(struct xhci_hcd *xhci,
+		int cmd_trb_comp_code)
+{
+	int cur_trb_is_good = 0;
+
+	/* Searching the cmd trb pointed by the command ring dequeue
+	 * pointer in command descriptor list. If it is found, free it.
+	 */
+	cur_trb_is_good = xhci_search_cmd_trb_in_cd_list(xhci,
+			xhci->cmd_ring->dequeue);
+
+	if (cmd_trb_comp_code == COMP_CMD_ABORT)
+		xhci->cmd_ring_state = CMD_RING_STATE_STOPPED;
+	else if (cmd_trb_comp_code == COMP_CMD_STOP) {
+		/* traversing the cancel_cmd_list and canceling
+		 * the command according to command descriptor
+		 */
+		xhci_cancel_cmd_in_cd_list(xhci);
+
+		xhci->cmd_ring_state = CMD_RING_STATE_RUNNING;
+		/*
+		 * ring command ring doorbell again to restart the
+		 * command ring
+		 */
+		if (xhci->cmd_ring->dequeue != xhci->cmd_ring->enqueue)
+			xhci_ring_cmd_db(xhci);
+	}
+	return cur_trb_is_good;
+}
+
 static void handle_cmd_completion(struct xhci_hcd *xhci,
 		struct xhci_event_cmd *event)
 {
@@ -1348,34 +1382,16 @@ static void handle_cmd_completion(struct xhci_hcd *xhci,
 		return;
 	}
 
-	/*
-	 * Command Ring Stopped events point at the xHC's *current* dequeue
-	 * pointer, i.e. the next command that will be executed. That TRB may
-	 * or may not have been issued yet. Just overwrite all canceled commands
-	 * with NOOPs and restart the ring, leaving our internal dequeue pointer
-	 * as it is (we will get another event for that position later, when
-	 * it has actually been executed).
-	 */
-	if (comp_code == COMP_CMD_STOP) {
-		xhci_cancel_cmd_in_cd_list(xhci);
-		xhci->cmd_ring_state = CMD_RING_STATE_RUNNING;
-		if (xhci->cmd_ring->dequeue != xhci->cmd_ring->enqueue)
-			xhci_ring_cmd_db(xhci);
-		return;
-	}
-
-	/*
-	 * If we aborted a command, we check if it is one of the commands we
-	 * meant to cancel. In that case, it will be freed and we just finish
-	 * up right here. If we aborted something else instead, we run it
-	 * through the normal handlers below. At any rate, the command ring is
-	 * stopped now, but the xHC will issue a Command Ring Stopped event
-	 * after this that will cause us to restart it.
-	 */
-	if (comp_code == COMP_CMD_ABORT) {
-		xhci->cmd_ring_state = CMD_RING_STATE_STOPPED;
-		if (xhci_search_cmd_trb_in_cd_list(xhci,
-			xhci->cmd_ring->dequeue)) {
+	if ((GET_COMP_CODE(le32_to_cpu(event->status)) == COMP_CMD_ABORT) ||
+		(GET_COMP_CODE(le32_to_cpu(event->status)) == COMP_CMD_STOP)) {
+		/* If the return value is 0, we think the trb pointed by
+		 * command ring dequeue pointer is a good trb. The good
+		 * trb means we don't want to cancel the trb, but it have
+		 * been stopped by host. So we should handle it normally.
+		 * Otherwise, driver should invoke inc_deq() and return.
+		 */
+		if (handle_stopped_cmd_ring(xhci,
+				GET_COMP_CODE(le32_to_cpu(event->status)))) {
 			inc_deq(xhci, xhci->cmd_ring);
 			return;
 		}
@@ -2449,14 +2465,21 @@ static int handle_tx_event(struct xhci_hcd *xhci,
 		 * TD list.
 		 */
 		if (list_empty(&ep_ring->td_list)) {
-			xhci_warn(xhci, "WARN Event TRB for slot %d ep %d "
-					"with no TDs queued?\n",
-				  TRB_TO_SLOT_ID(le32_to_cpu(event->flags)),
-				  ep_index);
-			xhci_dbg(xhci, "Event TRB with TRB type ID %u\n",
-				 (le32_to_cpu(event->flags) &
-				  TRB_TYPE_BITMASK)>>10);
-			xhci_print_trb_offsets(xhci, (union xhci_trb *) event);
+			/*
+			 * A stopped endpoint may generate an extra completion
+			 * event if the device was suspended.  Don't print
+			 * warnings.
+			 */
+			if (!(trb_comp_code == COMP_STOP ||
+						trb_comp_code == COMP_STOP_INVAL)) {
+				xhci_warn(xhci, "WARN Event TRB for slot %d ep %d with no TDs queued?\n",
+						TRB_TO_SLOT_ID(le32_to_cpu(event->flags)),
+						ep_index);
+				xhci_dbg(xhci, "Event TRB with TRB type ID %u\n",
+						(le32_to_cpu(event->flags) &
+						 TRB_TYPE_BITMASK)>>10);
+				xhci_print_trb_offsets(xhci, (union xhci_trb *) event);
+			}
 			if (ep->skip) {
 				ep->skip = false;
 				xhci_dbg(xhci, "td_list is empty while skip "

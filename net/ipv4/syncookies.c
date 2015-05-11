@@ -88,6 +88,7 @@ __u32 cookie_init_timestamp(struct request_sock *req)
 }
 
 
+#ifdef CONFIG_SYN_COOKIES
 static __u32 secure_tcp_syn_cookie(__be32 saddr, __be32 daddr, __be16 sport,
 				   __be16 dport, __u32 sseq, __u32 count,
 				   __u32 data)
@@ -108,6 +109,7 @@ static __u32 secure_tcp_syn_cookie(__be32 saddr, __be32 daddr, __be16 sport,
 		((cookie_hash(saddr, daddr, sport, dport, count, 1) + data)
 		 & COOKIEMASK));
 }
+#endif
 
 /*
  * This retrieves the small "data" value from the syncookie.
@@ -156,6 +158,7 @@ static __u16 const msstab[] = {
 	8960,
 };
 
+#ifdef CONFIG_SYN_COOKIES
 /*
  * Generate a syncookie.  mssp points to the mss, which is returned
  * rounded down to the value encoded in the cookie.
@@ -180,6 +183,7 @@ __u32 cookie_v4_init_sequence(struct sock *sk, struct sk_buff *skb, __u16 *mssp)
 				     th->source, th->dest, ntohl(th->seq),
 				     jiffies / (HZ * 60), mssind);
 }
+#endif
 
 /*
  * This (misnamed) value is the age of syncookie which is permitted.
@@ -348,8 +352,8 @@ struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb,
 	 * hasn't changed since we received the original syn, but I see
 	 * no easy way to do this.
 	 */
-	flowi4_init_output(&fl4, 0, ireq->ir_mark, RT_CONN_FLAGS(sk),
-			   RT_SCOPE_UNIVERSE, IPPROTO_TCP,
+	flowi4_init_output(&fl4, sk->sk_bound_dev_if, ireq->ir_mark,
+			   RT_CONN_FLAGS(sk), RT_SCOPE_UNIVERSE, IPPROTO_TCP,
 			   inet_sk_flowi_flags(sk),
 			   (opt && opt->srr) ? opt->faddr : ireq->rmt_addr,
 			   ireq->loc_addr, th->source, th->dest,

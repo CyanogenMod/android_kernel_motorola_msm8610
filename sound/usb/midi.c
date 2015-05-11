@@ -1048,6 +1048,12 @@ static int substream_open(struct snd_rawmidi_substream *substream, int dir,
 		return open ? -ENODEV : 0;
 	}
 
+	down_read(&umidi->disc_rwsem);
+	if (umidi->disconnected) {
+		up_read(&umidi->disc_rwsem);
+		return open ? -ENODEV : 0;
+	}
+
 	mutex_lock(&umidi->mutex);
 	if (open) {
 		if (!umidi->opened[0] && !umidi->opened[1]) {
@@ -2255,6 +2261,8 @@ int snd_usbmidi_create(struct snd_card *card,
 		snd_usbmidi_free(umidi);
 		return err;
 	}
+
+	usb_autopm_get_interface_no_resume(umidi->iface);
 
 	list_add_tail(&umidi->list, midi_list);
 	return 0;
