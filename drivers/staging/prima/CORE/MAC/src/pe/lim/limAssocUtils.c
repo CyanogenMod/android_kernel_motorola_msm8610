@@ -1,25 +1,5 @@
 /*
- * Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
- *
- * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
- *
- *
- * Permission to use, copy, modify, and/or distribute this software for
- * any purpose with or without fee is hereby granted, provided that the
- * above copyright notice and this permission notice appear in all
- * copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
- * WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
- * AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
- * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
- * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
- */
-/*
- * Copyright (c) 2012, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2014 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -39,6 +19,11 @@
  * PERFORMANCE OF THIS SOFTWARE.
  */
 
+/*
+ * This file was originally distributed by Qualcomm Atheros, Inc.
+ * under proprietary terms before Copyright ownership was assigned
+ * to the Linux Foundation.
+ */
 
 /*
  * This file limAssocUtils.cc contains the utility functions
@@ -462,10 +447,10 @@ limCheckRxRSNIeMatch(tpAniSirGlobal pMac, tDot11fIERSN rxRSNIe,tpPESession pSess
     tDot11fIERSN    *pRSNIe;
     tANI_U8         i, j, match, onlyNonHtCipher = 1;
 #ifdef WLAN_FEATURE_11W
-    tANI_BOOLEAN weRequirePMF;
     tANI_BOOLEAN weArePMFCapable;
-    tANI_BOOLEAN theyRequirePMF;
+    tANI_BOOLEAN weRequirePMF;
     tANI_BOOLEAN theyArePMFCapable;
+    tANI_BOOLEAN theyRequirePMF;
 #endif
 
 
@@ -531,11 +516,12 @@ limCheckRxRSNIeMatch(tpAniSirGlobal pMac, tDot11fIERSN rxRSNIe,tpPESession pSess
     }
 
     *pmfConnection = eANI_BOOLEAN_FALSE;
+
 #ifdef WLAN_FEATURE_11W
-    weRequirePMF = (pRSNIe->RSN_Cap[0] >> 6) & 0x1;
-    weArePMFCapable = (pRSNIe->RSN_Cap[0] >> 7) & 0x1;
-    theyRequirePMF = (rxRSNIe.RSN_Cap[0] >> 6) & 0x1;
+    weArePMFCapable = pSessionEntry->pLimStartBssReq->pmfCapable;
+    weRequirePMF = pSessionEntry->pLimStartBssReq->pmfRequired;
     theyArePMFCapable = (rxRSNIe.RSN_Cap[0] >> 7) & 0x1;
+    theyRequirePMF = (rxRSNIe.RSN_Cap[0] >> 6) & 0x1;
 
     if ((theyRequirePMF && theyArePMFCapable && !weArePMFCapable) ||
         (weRequirePMF && !theyArePMFCapable))
@@ -550,6 +536,10 @@ limCheckRxRSNIeMatch(tpAniSirGlobal pMac, tDot11fIERSN rxRSNIe,tpPESession pSess
 
     if(theyArePMFCapable && weArePMFCapable)
         *pmfConnection = eANI_BOOLEAN_TRUE;
+
+    limLog(pMac, LOG1, FL("weAreCapable %d, weRequire %d, theyAreCapable %d, "
+                          "theyRequire %d, PMFconnection %d"),
+           weArePMFCapable, weRequirePMF, theyArePMFCapable, theyRequirePMF, *pmfConnection);
 #endif
 
     return eSIR_SUCCESS;
@@ -732,12 +722,12 @@ limCleanupRxPath(tpAniSirGlobal pMac, tpDphHashNode pStaDs,tpPESession psessionE
         pMac->lim.gLastBeaconDtimCount = 0;
         pMac->lim.gLastBeaconDtimPeriod = 0;
 
-#ifdef FEATURE_WLAN_CCX
-#ifdef FEATURE_WLAN_CCX_UPLOAD
+#ifdef FEATURE_WLAN_ESE
+#ifdef FEATURE_WLAN_ESE_UPLOAD
         limSendSmeTsmIEInd(pMac, psessionEntry, 0, 0, 0);
 #else
         limDeactivateAndChangeTimer(pMac,eLIM_TSM_TIMER);
-#endif /* FEATURE_WLAN_CCX_UPLOAD */
+#endif /* FEATURE_WLAN_ESE_UPLOAD */
 #endif
 
         /**
@@ -908,16 +898,24 @@ limSendDelStaCnf(tpAniSirGlobal pMac, tSirMacAddr staDsAddr,
         //If there is a failure during rest of the assoc sequence, this context needs to be cleaned up.
         tANI_U8         smesessionId;
         tANI_U16        smetransactionId;
+        tLimSmeStates   tempLimSmeState = eLIM_SME_IDLE_STATE;
 
         smesessionId = psessionEntry->smeSessionId;
         smetransactionId = psessionEntry->transactionId;
 
+        tempLimSmeState = psessionEntry->limSmeState;
         psessionEntry->limSmeState = eLIM_SME_JOIN_FAILURE_STATE;
         MTRACE(macTrace(pMac, TRACE_CODE_SME_STATE, psessionEntry->peSessionId, psessionEntry->limSmeState));
 
         //if it is a reassoc failure to join new AP
+        //eSIR_SME_JOIN_DEAUTH_FROM_AP_DURING_ADD_STA result code is used
+        //during assoc and reassoc, so sme state req to distinguish them
         if((mlmStaContext.resultCode == eSIR_SME_FT_REASSOC_TIMEOUT_FAILURE) ||
-           (mlmStaContext.resultCode == eSIR_SME_FT_REASSOC_FAILURE))
+           (mlmStaContext.resultCode == eSIR_SME_FT_REASSOC_FAILURE) ||
+           (mlmStaContext.resultCode == eSIR_SME_REASSOC_TIMEOUT_RESULT_CODE) ||
+           (mlmStaContext.resultCode == eSIR_SME_JOIN_DEAUTH_FROM_AP_DURING_ADD_STA
+            && tempLimSmeState == eLIM_SME_WT_REASSOC_STATE)
+          )
         {
             if(mlmStaContext.resultCode != eSIR_SME_SUCCESS )
             {
@@ -1851,6 +1849,7 @@ limPopulateOwnRateSet(tpAniSirGlobal pMac,
 #ifdef WLAN_FEATURE_11AC
 tSirRetStatus
 limPopulatePeerRateSet(tpAniSirGlobal pMac,
+
                       tpSirSupportedRates pRates,
                       tANI_U8* pSupportedMCSSet,
                       tANI_U8 basicOnly,
@@ -1887,6 +1886,7 @@ limPopulatePeerRateSet(tpAniSirGlobal pMac,
         (psessionEntry->dot11mode == WNI_CFG_DOT11_MODE_11A) ||
         (psessionEntry->dot11mode == WNI_CFG_DOT11_MODE_11N))
     {
+
         if (psessionEntry->extRateSet.numRates <= SIR_MAC_RATESET_EID_MAX)
         {
             vos_mem_copy((tANI_U8 *)tempRateSet2.rate,
@@ -1962,6 +1962,8 @@ limPopulatePeerRateSet(tpAniSirGlobal pMac,
             tempRateSet.rate[min] = 0xff;
         }
     }
+
+
     if (IS_DOT11_MODE_HT(psessionEntry->dot11mode))
     {
         val = SIZE_OF_SUPPORTED_MCS_SET;
@@ -1991,6 +1993,7 @@ limPopulatePeerRateSet(tpAniSirGlobal pMac,
  error:
     return eSIR_FAILURE;
 } /*** limPopulatePeerRateSet() ***/
+
 /**
  * limPopulateMatchingRateSet
  * FUNCTION:
@@ -2370,6 +2373,7 @@ limAddSta(
     pAddStaParams->wmmEnabled = pStaDs->qosMode;
     pAddStaParams->listenInterval = pStaDs->mlmStaContext.listenInterval;
     pAddStaParams->shortPreambleSupported = pStaDs->shortPreambleEnabled;
+    pAddStaParams->currentOperChan = psessionEntry->currentOperChannel;
     if((limGetSystemRole(psessionEntry) == eLIM_AP_ROLE) && (pStaDs->mlmStaContext.subType == LIM_REASSOC))
     {
         /* TBD - need to remove this REASSOC check after fixinf rmmod issue */
@@ -2796,6 +2800,7 @@ limAddStaSelf(tpAniSirGlobal pMac,tANI_U16 staIdx, tANI_U8 updateSta, tpPESessio
     tANI_U32 listenInterval = WNI_CFG_LISTEN_INTERVAL_STADEF;
     tANI_U32 shortGi20MhzSupport;
     tANI_U32 shortGi40MhzSupport;
+    tANI_U32 val;
     /*This self Sta dot 11 mode comes from the cfg and the expectation here is
      * that cfg carries the systemwide capability that device under
      * consideration can support. This capability gets plumbed into the cfg
@@ -2840,7 +2845,7 @@ limAddStaSelf(tpAniSirGlobal pMac,tANI_U16 staIdx, tANI_U8 updateSta, tpPESessio
     pAddStaParams->staType = STA_ENTRY_SELF;
     pAddStaParams->status = eHAL_STATUS_SUCCESS;
     pAddStaParams->respReqd = 1;
-
+    pAddStaParams->currentOperChan = psessionEntry->currentOperChannel;
     /* Update  PE session ID */
     pAddStaParams->sessionId = psessionEntry->peSessionId;
     
@@ -2848,7 +2853,12 @@ limAddStaSelf(tpAniSirGlobal pMac,tANI_U16 staIdx, tANI_U8 updateSta, tpPESessio
     pAddStaParams->staIdx = staIdx;
     pAddStaParams->updateSta = updateSta;
 
-    pAddStaParams->shortPreambleSupported = psessionEntry->beaconParams.fShortPreamble;
+    if (wlan_cfgGetInt(pMac, WNI_CFG_SHORT_PREAMBLE, &val) != eSIR_SUCCESS)
+    {
+        limLog(pMac, LOGP, FL("Get short preamble failed. Set Default value"));
+         pAddStaParams->shortPreambleSupported = 1;
+    }
+    pAddStaParams->shortPreambleSupported = val;
 
 #ifdef WLAN_FEATURE_11AC
     limPopulateOwnRateSet(pMac, &pAddStaParams->supportedRates, NULL, false,psessionEntry,NULL);
@@ -3151,6 +3161,7 @@ limDeleteDphHashEntry(tpAniSirGlobal pMac, tSirMacAddr staAddr, tANI_U16 staId,t
     tUpdateBeaconParams beaconParams;    
     tLimSystemRole systemRole;
 
+    vos_mem_zero(&beaconParams, sizeof(tUpdateBeaconParams));
     beaconParams.paramChangeBitmap = 0;
     limDeactivateAndChangePerStaIdTimer(pMac, eLIM_CNF_WAIT_TIMER, staId);
     if (NULL == psessionEntry)
@@ -3190,6 +3201,10 @@ limDeleteDphHashEntry(tpAniSirGlobal pMac, tSirMacAddr staAddr, tANI_U16 staId,t
                 schSetFixedBeaconFields(pMac,psessionEntry);    
                 limSendBeaconParams(pMac, &beaconParams, psessionEntry );
             }
+
+#ifdef WLAN_FEATURE_11W
+            tx_timer_delete(&pStaDs->pmfSaQueryTimer);
+#endif
         }
         if (dphDeleteHashEntry(pMac, staAddr, staId, &psessionEntry->dph.dphHashTable) != eSIR_SUCCESS)
            limLog(pMac, LOGP, FL("error deleting hash entry"));
@@ -3316,6 +3331,9 @@ limCheckAndAnnounceJoinSuccess(tpAniSirGlobal pMac,
         psessionEntry->limMlmState = eLIM_MLM_JOINED_STATE;
         MTRACE(macTrace(pMac, TRACE_CODE_MLM_STATE, psessionEntry->peSessionId, eLIM_MLM_JOINED_STATE));
 
+        /* update the capability info based on recently
+         * received beacon/probe response frame */
+        psessionEntry->limCurrentBssCaps = limGetU16((tANI_U8 *) &pBPR->capabilityInfo);
 
         /**
          * Announce join success by sending
@@ -3670,7 +3688,8 @@ tSirRetStatus limStaSendAddBss( tpAniSirGlobal pMac, tpSirAssocRsp pAssocRsp,
         }
         pAddBssParams->staContext.uAPSD = 0;
         pAddBssParams->staContext.maxSPLen = 0;
-        pAddBssParams->staContext.shortPreambleSupported = (tANI_U8)pAssocRsp->capabilityInfo.shortPreamble;
+        pAddBssParams->staContext.shortPreambleSupported =
+                       psessionEntry->beaconParams.fShortPreamble;
         pAddBssParams->staContext.updateSta = updateEntry;
 
         limLog(pMac, LOG2, FL("StaContext: "MAC_ADDRESS_STR
@@ -3697,6 +3716,16 @@ tSirRetStatus limStaSendAddBss( tpAniSirGlobal pMac, tpSirAssocRsp pAssocRsp,
                      psessionEntry->txBFIniFeatureEnabled)
                 {
                     pAddBssParams->staContext.vhtTxBFCapable = 1;
+                }
+                if (pAssocRsp->VHTCaps.muBeamformerCap &&
+                                    psessionEntry->txMuBformee )
+                {
+                    pAddBssParams->staContext.vhtTxMUBformeeCapable = 1;
+                    limLog(pMac, LOG1,FL("Enabling MUBformeeCapable for peer"));
+                    /* Dont allow any other MuBf session as concurrency
+                     * is not supported
+                     */
+                    pMac->isMuBfsessionexist = TRUE;
                 }
             }
 #endif
@@ -4129,6 +4158,17 @@ tSirRetStatus limStaSendAddBssPreAssoc( tpAniSirGlobal pMac, tANI_U8 updateEntry
                 {
                     pAddBssParams->staContext.vhtTxBFCapable = 1;
                 }
+                if (pBeaconStruct->VHTCaps.muBeamformerCap &&
+                                    psessionEntry->txMuBformee )
+                {
+                    pAddBssParams->staContext.vhtTxMUBformeeCapable = 1;
+                    limLog(pMac, LOG1,FL("Enabling MUBformeeCapable for peer"));
+                    /* Dont allow any other MuBf session as concurrency
+                     * is not supported
+                     */
+                    pMac->isMuBfsessionexist = TRUE;
+                }
+
             }
 #endif
             if( (pBeaconStruct->HTCaps.supportedChannelWidthSet) &&
@@ -4638,7 +4678,7 @@ void limSendSmeUnprotectedMgmtFrameInd(
 }
 #endif
 
-#if defined(FEATURE_WLAN_CCX) && defined(FEATURE_WLAN_CCX_UPLOAD)
+#if defined(FEATURE_WLAN_ESE) && defined(FEATURE_WLAN_ESE_UPLOAD)
 /** -------------------------------------------------------------
 \fn     limSendSmeTsmIEInd
 \brief  Forwards the TSM IE information to SME.
@@ -4680,6 +4720,6 @@ void limSendSmeTsmIEInd(tpAniSirGlobal pMac, tpPESession psessionEntry,
     limSysProcessMmhMsgApi(pMac, &mmhMsg, ePROT);
     return;
 }
-#endif /* FEATURE_WLAN_CCX && FEATURE_WLAN_CCX_UPLOAD */
+#endif /* FEATURE_WLAN_ESE && FEATURE_WLAN_ESE_UPLOAD */
 
 

@@ -18,25 +18,11 @@
  * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  * PERFORMANCE OF THIS SOFTWARE.
  */
+
 /*
- * Copyright (c) 2012, The Linux Foundation. All rights reserved.
- *
- * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
- *
- *
- * Permission to use, copy, modify, and/or distribute this software for
- * any purpose with or without fee is hereby granted, provided that the
- * above copyright notice and this permission notice appear in all
- * copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
- * WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
- * AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
- * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
- * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
+ * This file was originally distributed by Qualcomm Atheros, Inc.
+ * under proprietary terms before Copyright ownership was assigned
+ * to the Linux Foundation.
  */
 
 /**=========================================================================
@@ -126,6 +112,7 @@ moduleTraceInfo gVosTraceInfo[ VOS_MODULE_ID_MAX ] =
    [VOS_MODULE_ID_HDD_SOFTAP] = { VOS_DEFAULT_TRACE_LEVEL, "HSP" },
    [VOS_MODULE_ID_PMC]        = { VOS_DEFAULT_TRACE_LEVEL, "PMC" },
    [VOS_MODULE_ID_HDD_DATA]   = { VOS_DEFAULT_TRACE_LEVEL, "HDP" },
+   [VOS_MODULE_ID_HDD_SAP_DATA] = { VOS_DEFAULT_TRACE_LEVEL, "SDP" },
 };
 /*-------------------------------------------------------------------------
   Static and Global variables
@@ -210,38 +197,6 @@ void vos_trace_setValue( VOS_MODULE_ID module, VOS_TRACE_LEVEL level, v_U8_t on)
    }
 }
 
-//Begin Motorola dcw476 4/17/13 IKJBXLINE-5577:changing wlan driver log level dynamically
-void vos_trace_setValue_till_level( VOS_MODULE_ID module, VOS_TRACE_LEVEL level, v_U8_t on) {
-  // Make sure the caller is passing in a valid LEVEL.
-   if ( level < 0  || level >= VOS_TRACE_LEVEL_MAX )
-   {
-      pr_err("%s: Invalid trace level %d passed in!\n", __func__, level);
-      return;
-   }
-
-   // Make sure the caller is passing in a valid module.
-   if ( module < 0 || module >= VOS_MODULE_ID_MAX )
-   {
-      pr_err("%s: Invalid module id %d passed in!\n", __func__, module);
-      return;
-   }
-
-   // Treat 'none' differently.  NONE means we have to turn off all
-   // the bits in the bit mask so none of the traces appear.
-   if ( VOS_TRACE_LEVEL_NONE == level )
-   {
-      gVosTraceInfo[ module ].moduleTraceLevel = VOS_TRACE_LEVEL_NONE;
-   }
-   // Treat 'All' differently.  All means we have to turn on all
-   // the bits in the bit mask so all of the traces appear.
-   else if ( VOS_TRACE_LEVEL_ALL == level )
-   {
-      gVosTraceInfo[ module ].moduleTraceLevel = 0xFFFF;
-   } else {
-      gVosTraceInfo[ module ].moduleTraceLevel = VOS_TRACE_LEVEL_TO_MODULE_BITMASK( level +1) -1;
-   }
-}
-//IKJBXLINE-5577
 
 v_BOOL_t vos_trace_getLevel( VOS_MODULE_ID module, VOS_TRACE_LEVEL level )
 {
@@ -269,72 +224,6 @@ void vos_snprintf(char *strBuffer, unsigned  int size, char *strFormat, ...)
     snprintf (strBuffer, size, strFormat, val);
     va_end( val );
 }
-
-#ifdef WCONN_TRACE_KMSG_LOG_BUFF
-
-/* 64k::  size should be power of 2 to
-   get serial 'wconnstrContBuffIdx'  index */
-#define KMSG_WCONN_TRACE_LOG_MAX    65536
-
-static char wconnStrLogBuff[KMSG_WCONN_TRACE_LOG_MAX];
-static unsigned int wconnstrContBuffIdx;
-static void kmsgwconnstrlogchar(char c)
-{
-   wconnStrLogBuff[wconnstrContBuffIdx & (KMSG_WCONN_TRACE_LOG_MAX-1)] = c;
-   wconnstrContBuffIdx++;
-}
-
-/******************************************************************************
- * function:: kmsgwconnBuffWrite()
- * wconnlogstrRead -> Recieved the string(log msg) from vos_trace_msg()
- * 1) Get the timetick, convert into HEX and store in wconnStrLogBuff[]
- * 2) And 'pwconnlogstr' would be copied into wconnStrLogBuff[] character by
-      character
- * 3) wconnStrLogBuff[] is been treated as circular buffer.
- *
- * Note:: In T32 simulator the content of wconnStrLogBuff[] will appear as
-          continuous string please use logparse.cmm file to extract into
-          readable format
- *******************************************************************************/
-
-void kmsgwconnBuffWrite(const char *wconnlogstrRead)
-{
-   const char *pwconnlogstr = wconnlogstrRead;
-   static const char num[16] = {'0','1','2','3','4','5','6','7','8','9','A',
-                                'B','C','D','E','F'};
-   v_TIME_t timetick;
-   int bits; /*timetick for now returns 32 bit number*/
-
-   timetick = vos_timer_get_system_time();
-   bits = sizeof(timetick) * 8/*number of bits in a byte*/;
-
-   kmsgwconnstrlogchar('[');
-
-   for ( ; bits > 0; bits -= 4 )
-      kmsgwconnstrlogchar( num[((timetick & (0xF << (bits-4)))>>(bits-4))] );
-
-   kmsgwconnstrlogchar(']');
-
-   for ( ; *pwconnlogstr; pwconnlogstr++)
-   {
-      kmsgwconnstrlogchar(*pwconnlogstr);
-   }
-   kmsgwconnstrlogchar('\n');/*log \n*/
-}
-
-spinlock_t gVosSpinLock;
-
-void vos_wconn_trace_init(void)
-{
-    spin_lock_init(&gVosSpinLock);
-}
-
-void vos_wconn_trace_exit(void)
-{
-    /* does nothing */
-}
-
-#endif
 
 #ifdef VOS_ENABLE_TRACING
 
@@ -365,7 +254,6 @@ void vos_trace_msg( VOS_MODULE_ID module, VOS_TRACE_LEVEL level, char *strFormat
 {
    char strBuffer[VOS_TRACE_BUFFER_SIZE];
    int n;
-   unsigned long irq_flag;
 
    // Print the trace message when the desired level bit is set in the module
    // tracel level mask.
@@ -391,19 +279,13 @@ void vos_trace_msg( VOS_MODULE_ID module, VOS_TRACE_LEVEL level, char *strFormat
       {
          vsnprintf(strBuffer + n, VOS_TRACE_BUFFER_SIZE - n, strFormat, val );
 
-#ifdef WCONN_TRACE_KMSG_LOG_BUFF
-         spin_lock_irqsave (&gVosSpinLock, irq_flag);
-         kmsgwconnBuffWrite(strBuffer);
-         spin_unlock_irqrestore (&gVosSpinLock, irq_flag);
-#endif
-
 #ifdef WLAN_LOGGING_SOCK_SVC_ENABLE
          wlan_log_to_user(level, (char *)strBuffer, strlen(strBuffer));
 #else
          pr_err("%s\n", strBuffer);
 #endif
       }
-     va_end(val);
+      va_end(val);
    }
 }
 
@@ -586,6 +468,7 @@ void vosTraceInit()
 void vos_trace(v_U8_t module, v_U8_t code, v_U8_t session, v_U32_t data)
 {
     tpvosTraceRecord rec = NULL;
+    unsigned long flags;
 
 
     if (!gvosTraceData.enable)
@@ -599,7 +482,7 @@ void vos_trace(v_U8_t module, v_U8_t code, v_U8_t session, v_U32_t data)
     }
 
     /* Aquire the lock so that only one thread at a time can fill the ring buffer */
-    spin_lock(&ltraceLock);
+    spin_lock_irqsave(&ltraceLock, flags);
 
     gvosTraceData.num++;
 
@@ -643,7 +526,7 @@ void vos_trace(v_U8_t module, v_U8_t code, v_U8_t session, v_U32_t data)
     rec->time = vos_timer_get_system_time();
     rec->module =  module;
     gvosTraceData.numSinceLastDump ++;
-    spin_unlock(&ltraceLock);
+    spin_unlock_irqrestore(&ltraceLock, flags);
 }
 
 
