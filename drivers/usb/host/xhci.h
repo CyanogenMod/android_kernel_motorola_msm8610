@@ -1532,6 +1532,8 @@ struct xhci_hcd {
  * The workaround is to give worst case pipe delay ~350us after resetting HC
  */
 #define XHCI_RESET_DELAY	(1 << 18)
+#define XHCI_SLOW_SUSPEND	(1 << 19)
+#define XHCI_SPURIOUS_WAKEUP	(1 << 20)
 	unsigned int		num_active_eps;
 	unsigned int		limit_active_eps;
 	/* There are two roothubs to keep track of bus suspend info for */
