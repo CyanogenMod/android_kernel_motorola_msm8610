@@ -40,11 +40,6 @@ struct inode_entry {
 	struct inode *inode;
 };
 
-struct gc_inode_list {
-	struct list_head ilist;
-	struct radix_tree_root iroot;
-};
-
 /*
  * inline functions
  */

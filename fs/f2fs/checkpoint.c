@@ -73,36 +73,36 @@ out:
 	return page;
 }
 
-static inline bool is_valid_blkaddr(struct f2fs_sb_info *sbi,
-						block_t blkaddr, int type)
+struct page *get_meta_page_ra(struct f2fs_sb_info *sbi, pgoff_t index)
+{
+	bool readahead = false;
+	struct page *page;
+
+	page = find_get_page(META_MAPPING(sbi), index);
+	if (!page || (page && !PageUptodate(page)))
+		readahead = true;
+	f2fs_put_page(page, 0);
+
+	if (readahead)
+		ra_meta_pages(sbi, index, MAX_BIO_BLOCKS(sbi), META_POR);
+	return get_meta_page(sbi, index);
+}
+
+static inline block_t get_max_meta_blks(struct f2fs_sb_info *sbi, int type)
 {
 	switch (type) {
 	case META_NAT:
-		break;
+		return NM_I(sbi)->max_nid / NAT_ENTRY_PER_BLOCK;
 	case META_SIT:
-		if (unlikely(blkaddr >= SIT_BLK_CNT(sbi)))
-			return false;
-		break;
+		return SIT_BLK_CNT(sbi);
 	case META_SSA:
-		if (unlikely(blkaddr >= MAIN_BLKADDR(sbi) ||
-			blkaddr < SM_I(sbi)->ssa_blkaddr))
-			return false;
-		break;
 	case META_CP:
-		if (unlikely(blkaddr >= SIT_I(sbi)->sit_base_addr ||
-			blkaddr < __start_cp_addr(sbi)))
-			return false;
-		break;
+		return 0;
 	case META_POR:
-		if (unlikely(blkaddr >= MAX_BLKADDR(sbi) ||
-			blkaddr < MAIN_BLKADDR(sbi)))
-			return false;
-		break;
+		return MAX_BLKADDR(sbi);
 	default:
 		BUG();
 	}
-
-	return true;
 }
 
 /*
@@ -113,6 +113,7 @@ int ra_meta_pages(struct f2fs_sb_info *sbi, block_t start, int nrpages, int type
 	block_t prev_blk_addr = 0;
 	struct page *page;
 	block_t blkno = start;
+	block_t max_blks = get_max_meta_blks(sbi, type);
 
 	struct f2fs_io_info fio = {
 		.type = META,
@@ -122,20 +123,18 @@ int ra_meta_pages(struct f2fs_sb_info *sbi, block_t start, int nrpages, int type
 	for (; nrpages-- > 0; blkno++) {
 		block_t blk_addr;
 
-		if (!is_valid_blkaddr(sbi, blkno, type))
-			goto out;
-
 		switch (type) {
 		case META_NAT:
-			if (unlikely(blkno >=
-					NAT_BLOCK_OFFSET(NM_I(sbi)->max_nid)))
-				blkno = 0;
 			/* get nat block addr */
+			if (unlikely(blkno >= max_blks))
+				blkno = 0;
 			blk_addr = current_nat_addr(sbi,
 					blkno * NAT_ENTRY_PER_BLOCK);
 			break;
 		case META_SIT:
 			/* get sit block addr */
+			if (unlikely(blkno >= max_blks))
+				goto out;
 			blk_addr = current_sit_addr(sbi,
 					blkno * SIT_ENTRY_PER_BLOCK);
 			if (blkno != start && prev_blk_addr + 1 != blk_addr)
@@ -145,6 +144,10 @@ int ra_meta_pages(struct f2fs_sb_info *sbi, block_t start, int nrpages, int type
 		case META_SSA:
 		case META_CP:
 		case META_POR:
+			if (unlikely(blkno >= max_blks))
+				goto out;
+			if (unlikely(blkno < SEG0_BLKADDR(sbi)))
+				goto out;
 			blk_addr = blkno;
 			break;
 		default:
@@ -165,20 +168,6 @@ int ra_meta_pages(struct f2fs_sb_info *sbi, block_t start, int nrpages, int type
 out:
 	f2fs_submit_merged_bio(sbi, META, READ);
 	return blkno - start;
-}
-
-void ra_meta_pages_cond(struct f2fs_sb_info *sbi, pgoff_t index)
-{
-	struct page *page;
-	bool readahead = false;
-
-	page = find_get_page(META_MAPPING(sbi), index);
-	if (!page || (page && !PageUptodate(page)))
-		readahead = true;
-	f2fs_put_page(page, 0);
-
-	if (readahead)
-		ra_meta_pages(sbi, index, MAX_BIO_BLOCKS(sbi), META_POR);
 }
 
 static int f2fs_write_meta_page(struct page *page,
@@ -316,11 +305,6 @@ static void __add_ino_entry(struct f2fs_sb_info *sbi, nid_t ino, int type)
 	struct inode_management *im = &sbi->im[type];
 	struct ino_entry *e;
 retry:
-	if (radix_tree_preload(GFP_NOFS)) {
-		cond_resched();
-		goto retry;
-	}
-
 	spin_lock(&im->ino_lock);
 
 	e = radix_tree_lookup(&im->ino_root, ino);
@@ -328,13 +312,11 @@ retry:
 		e = kmem_cache_alloc(ino_entry_slab, GFP_ATOMIC);
 		if (!e) {
 			spin_unlock(&im->ino_lock);
-			radix_tree_preload_end();
 			goto retry;
 		}
 		if (radix_tree_insert(&im->ino_root, ino, e)) {
 			spin_unlock(&im->ino_lock);
 			kmem_cache_free(ino_entry_slab, e);
-			radix_tree_preload_end();
 			goto retry;
 		}
 		memset(e, 0, sizeof(struct ino_entry));
@@ -345,7 +327,6 @@ retry:
 			im->ino_num++;
 	}
 	spin_unlock(&im->ino_lock);
-	radix_tree_preload_end();
 }
 
 static void __remove_ino_entry(struct f2fs_sb_info *sbi, nid_t ino, int type)

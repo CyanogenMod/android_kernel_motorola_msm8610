@@ -108,7 +108,6 @@ enum mem_type {
 	NAT_ENTRIES,	/* indicates the cached nat entry */
 	DIRTY_DENTS,	/* indicates dirty dentry pages */
 	INO_ENTRIES,	/* indicates inode entries */
-	BASE_CHECK,	/* check kernel status */
 };
 
 struct nat_entry_set {

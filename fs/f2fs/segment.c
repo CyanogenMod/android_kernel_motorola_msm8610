@@ -238,15 +238,13 @@ void register_inmem_page(struct inode *inode, struct page *page)
 	struct f2fs_inode_info *fi = F2FS_I(inode);
 	struct inmem_pages *new;
 	int err;
-
-	SetPagePrivate(page);
-
+retry:
 	new = f2fs_kmem_cache_alloc(inmem_entry_slab, GFP_NOFS);
 
 	/* add atomic page indices to the list */
 	new->page = page;
 	INIT_LIST_HEAD(&new->list);
-retry:
+
 	/* increase reference count with clean state */
 	mutex_lock(&fi->inmem_lock);
 	err = radix_tree_insert(&fi->inmem_root, page->index, new);
@@ -256,11 +254,11 @@ retry:
 		return;
 	} else if (err) {
 		mutex_unlock(&fi->inmem_lock);
+		kmem_cache_free(inmem_entry_slab, new);
 		goto retry;
 	}
 	get_page(page);
 	list_add_tail(&new->list, &fi->inmem_pages);
-	inc_page_count(F2FS_I_SB(inode), F2FS_INMEM_PAGES);
 	mutex_unlock(&fi->inmem_lock);
 }
 
@@ -276,7 +274,6 @@ void invalidate_inmem_page(struct inode *inode, struct page *page)
 		f2fs_put_page(cur->page, 0);
 		list_del(&cur->list);
 		kmem_cache_free(inmem_entry_slab, cur);
-		dec_page_count(F2FS_I_SB(inode), F2FS_INMEM_PAGES);
 	}
 	mutex_unlock(&fi->inmem_lock);
 }
@@ -289,7 +286,7 @@ void commit_inmem_pages(struct inode *inode, bool abort)
 	bool submit_bio = false;
 	struct f2fs_io_info fio = {
 		.type = DATA,
-		.rw = WRITE_SYNC | REQ_PRIO,
+		.rw = WRITE_SYNC,
 	};
 
 	/*
@@ -299,38 +296,32 @@ void commit_inmem_pages(struct inode *inode, bool abort)
 	 * Otherwise, f2fs_gc in f2fs_balance_fs can wait forever until this
 	 * inode becomes free by iget_locked in f2fs_iget.
 	 */
-	if (!abort) {
+	if (!abort)
 		f2fs_balance_fs(sbi);
-		f2fs_lock_op(sbi);
-	}
+
+	f2fs_lock_op(sbi);
 
 	mutex_lock(&fi->inmem_lock);
 	list_for_each_entry_safe(cur, tmp, &fi->inmem_pages, list) {
-		if (!abort) {
-			lock_page(cur->page);
-			if (cur->page->mapping == inode->i_mapping) {
-				f2fs_wait_on_page_writeback(cur->page, DATA);
-				if (clear_page_dirty_for_io(cur->page))
-					inode_dec_dirty_pages(inode);
-				do_write_data_page(cur->page, &fio);
-				submit_bio = true;
-			}
-			f2fs_put_page(cur->page, 1);
-		} else {
-			put_page(cur->page);
+		lock_page(cur->page);
+		if (!abort && cur->page->mapping == inode->i_mapping) {
+			f2fs_wait_on_page_writeback(cur->page, DATA);
+			if (clear_page_dirty_for_io(cur->page))
+				inode_dec_dirty_pages(inode);
+			do_write_data_page(cur->page, &fio);
+			submit_bio = true;
 		}
 		radix_tree_delete(&fi->inmem_root, cur->page->index);
+		f2fs_put_page(cur->page, 1);
 		list_del(&cur->list);
 		kmem_cache_free(inmem_entry_slab, cur);
-		dec_page_count(F2FS_I_SB(inode), F2FS_INMEM_PAGES);
 	}
+	if (submit_bio)
+		f2fs_submit_merged_bio(sbi, DATA, WRITE);
 	mutex_unlock(&fi->inmem_lock);
 
-	if (!abort) {
-		f2fs_unlock_op(sbi);
-		if (submit_bio)
-			f2fs_submit_merged_bio(sbi, DATA, WRITE);
-	}
+	filemap_fdatawait_range(inode->i_mapping, 0, LLONG_MAX);
+	f2fs_unlock_op(sbi);
 }
 
 /*
@@ -354,7 +345,7 @@ void f2fs_balance_fs_bg(struct f2fs_sb_info *sbi)
 	/* check the # of cached NAT entries and prefree segments */
 	if (try_to_free_nats(sbi, NAT_ENTRY_PER_BLOCK) ||
 			excess_prefree_segs(sbi) ||
-			!available_free_memory(sbi, INO_ENTRIES))
+			available_free_memory(sbi, INO_ENTRIES))
 		f2fs_sync_fs(sbi->sb, true);
 }
 
