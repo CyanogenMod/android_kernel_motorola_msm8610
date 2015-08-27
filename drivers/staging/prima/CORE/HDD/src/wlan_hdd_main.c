@@ -2218,6 +2218,13 @@ static int hdd_driver_command(hdd_adapter_t *pAdapter,
            tANI_U8 *ptr = command;
            ret = hdd_wmmps_helper(pAdapter, ptr);
        }
+
+       else if(strncmp(command, "TDLSSCAN", 8) == 0)
+       {
+           tANI_U8 *ptr  = command;
+           ret = hdd_set_tdls_scan_type(pAdapter, ptr);
+       }
+
        else if ( strncasecmp(command, "COUNTRY", 7) == 0 )
        {
            char *country_code;
@@ -10138,6 +10145,19 @@ v_BOOL_t hdd_is_apps_power_collapse_allowed(hdd_context_t* pHddCtx)
                  (eANI_BOOLEAN_TRUE == scanRspPending) ||
                  (eANI_BOOLEAN_TRUE == inMiddleOfRoaming))
             {
+                if(pmcState == FULL_POWER &&
+                   sme_IsCoexScoIndicationSet(pHddCtx->hHal))
+                {
+                    /*
+                     * When SCO indication comes from Coex module , host will
+                     * enter in to full power mode, but this should not prevent
+                     * apps processor power collapse.
+                     */
+                    hddLog(LOG1,
+                       FL("Allow apps power collapse"
+                          "even when sco indication is set"));
+                    return TRUE;
+                }
                 hddLog( LOGE, "%s: do not allow APPS power collapse-"
                     "pmcState = %d scanRspPending = %d inMiddleOfRoaming = %d",
                     __func__, pmcState, scanRspPending, inMiddleOfRoaming );
@@ -10520,23 +10540,39 @@ int wlan_hdd_scan_abort(hdd_adapter_t *pAdapter)
     hdd_context_t *pHddCtx = WLAN_HDD_GET_CTX(pAdapter);
     hdd_scaninfo_t *pScanInfo = NULL;
     long status = 0;
+    tSirAbortScanStatus abortScanStatus;
 
     pScanInfo = &pHddCtx->scan_info;
     if (pScanInfo->mScanPending)
     {
-        INIT_COMPLETION(pScanInfo->abortscan_event_var);
-        hdd_abort_mac_scan(pHddCtx, pScanInfo->sessionId,
-                                    eCSR_SCAN_ABORT_DEFAULT);
+        abortScanStatus = hdd_abort_mac_scan(pHddCtx, pScanInfo->sessionId,
+                                             eCSR_SCAN_ABORT_DEFAULT);
+        VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_INFO,
+                  FL("abortScanStatus: %d"), abortScanStatus);
 
-        status = wait_for_completion_interruptible_timeout(
+        /* If there is active scan command lets wait for the completion else
+         * there is no need to wait as scan command might be in the SME pending
+         * command list.
+         */
+        if (abortScanStatus == eSIR_ABORT_ACTIVE_SCAN_LIST_NOT_EMPTY)
+        {
+            INIT_COMPLETION(pScanInfo->abortscan_event_var);
+            status = wait_for_completion_interruptible_timeout(
                            &pScanInfo->abortscan_event_var,
                            msecs_to_jiffies(5000));
-        if (0 >= status)
-        {
-           VOS_TRACE( VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
+            if (0 >= status)
+            {
+               VOS_TRACE( VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
                   "%s: Timeout or Interrupt occurred while waiting for abort"
                   "scan, status- %ld", __func__, status);
-            return -ETIMEDOUT;
+                return -ETIMEDOUT;
+            }
+        }
+        else if (abortScanStatus == eSIR_ABORT_SCAN_FAILURE)
+        {
+            VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
+                      FL("hdd_abort_mac_scan failed"));
+            return -VOS_STATUS_E_FAILURE;
         }
     }
     return 0;
