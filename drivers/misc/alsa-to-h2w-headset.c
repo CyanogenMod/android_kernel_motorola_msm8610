@@ -42,6 +42,8 @@ static char *name_headsets_with_mic = "Headset with a mic";
 static char *name_headsets_no_mic = "Headphone";
 static char *name_headsets_pull_out = "No Device";
 
+static bool sensor_hub_present = false;
+
 static struct alsa_to_h2w_data *headset_switch_data;
 
 static void alsa_to_h2w_headset_report(int state)
@@ -78,6 +80,12 @@ static int alsa_to_h2w_connect(struct input_handler *handler,
 	int ret;
 	struct input_handle *handle;
 
+	/*
+	 * If a sensor hub is present, any other jack input device is a dummy
+	 * that should be ignored.
+	 */
+	if (sensor_hub_present) return -ENODEV;
+
 	handle = kzalloc(sizeof(*handle), GFP_KERNEL);
 	if (!handle)
 		return -ENOMEM;
@@ -92,6 +100,9 @@ static int alsa_to_h2w_connect(struct input_handler *handler,
 	ret = input_open_device(handle);
 	if (ret)
 		goto err_input_open_device;
+
+	if (dev->name && (strcmp(dev->name, "sensorprocessor") == 0))
+		sensor_hub_present = true;
 
 	alsa_to_h2w_headset_report(switch_to_h2w(dev->sw[0]));
 
