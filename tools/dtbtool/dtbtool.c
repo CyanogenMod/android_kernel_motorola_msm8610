@@ -49,9 +49,9 @@
 #define PAGE_SIZE_DEF  2048
 #define PAGE_SIZE_MAX  (1024*1024)
 
-#define log_err(x...)  printf(x)
-#define log_info(x...) printf(x)
-#define log_dbg(x...)  { if (verbose) printf(x); }
+#define log_err(...)  printf(__VA_ARGS__)
+#define log_info(...) printf(__VA_ARGS__)
+#define log_dbg(...)  { if (verbose) printf(__VA_ARGS__); }
 
 #define COPY_BLK       1024    /* File copy block size */
 
@@ -711,7 +711,7 @@ int main(int argc, char **argv)
     log_info("\nGenerating master DTB... ");
 
     out_fd = open(output_file, O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR);
-    if (!out_fd < 0) {
+    if (out_fd < 0) {
         log_err("Cannot create '%s'\n", output_file);
         rc = RC_ERROR;
         goto cleanup;
@@ -799,10 +799,10 @@ int main(int argc, char **argv)
 
     if (expected != wrote) {
         log_err("error writing output file, please rerun: size mismatch %d vs %d\n",
-                expected, wrote);
+                (int)expected, (int)wrote);
         rc = RC_ERROR;
     } else
-        log_dbg("Total wrote %u bytes\n", wrote);
+        log_dbg("Total wrote %u bytes\n", (int)wrote);
 
     if (rc != RC_SUCCESS)
         unlink(output_file);

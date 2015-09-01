@@ -6,7 +6,7 @@
 # http://opensource.org/licenses/BSD-2-Clause
 
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -std=gnu11 -I.
+CFLAGS = -Wall -Wextra -pedantic -std=c11 -I.
 LFLAGS = -lc -lm
 
 ifeq ($(DEBUG),1)
