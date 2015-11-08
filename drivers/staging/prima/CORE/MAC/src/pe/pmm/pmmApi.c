@@ -18,14 +18,28 @@
  * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
  * PERFORMANCE OF THIS SOFTWARE.
  */
-
 /*
- * This file was originally distributed by Qualcomm Atheros, Inc.
- * under proprietary terms before Copyright ownership was assigned
- * to the Linux Foundation.
+ * Copyright (c) 2012, The Linux Foundation. All rights reserved.
+ *
+ * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
+ *
+ *
+ * Permission to use, copy, modify, and/or distribute this software for
+ * any purpose with or without fee is hereby granted, provided that the
+ * above copyright notice and this permission notice appear in all
+ * copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+ * WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+ * AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+ * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+ * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+ * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ * PERFORMANCE OF THIS SOFTWARE.
  */
-
 /*
+ * Airgo Networks, Inc proprietary. All rights reserved.
  * This file pmmApi.cc contains functions related to the API exposed
  * by power management module
  *
@@ -516,9 +530,6 @@ failure:
     // Change the state back to original state
     pMac->pmm.gPmmState =origState;
     limSendSmeRsp(pMac, eWNI_PMC_ENTER_BMPS_RSP, respStatus, 0, 0);
-
-    // update the BMPS pwr save Error Stats
-    pmmBmpsUpdateSleepReqFailureCnt(pMac);
     return;
 }
 
@@ -839,7 +850,7 @@ void pmmExitBmpsResponseHandler(tpAniSirGlobal pMac,  tpSirMsgQ limMsg)
     tANI_U8 PowersavesessionId;
     tpPESession psessionEntry;
     tSirResultCodes retStatus = eSIR_SME_SUCCESS;
-
+    
     /* Copy the power save sessionId to the local variable */
     PowersavesessionId = pMac->pmm.sessionId;
 
@@ -855,6 +866,10 @@ void pmmExitBmpsResponseHandler(tpAniSirGlobal pMac,  tpSirMsgQ limMsg)
         return;
     }
 
+    
+
+    /* Update wakeup statistics */
+    pmmUpdateWakeupStats(pMac);
 
     if (NULL == limMsg->bodyptr)
     {
@@ -885,8 +900,6 @@ void pmmExitBmpsResponseHandler(tpAniSirGlobal pMac,  tpSirMsgQ limMsg)
     {
         case eHAL_STATUS_SUCCESS:
             retStatus = eSIR_SME_SUCCESS;
-            /* Update wakeup statistics */
-            pmmUpdateWakeupStats(pMac);
             break;
 
         default:
@@ -896,13 +909,13 @@ void pmmExitBmpsResponseHandler(tpAniSirGlobal pMac,  tpSirMsgQ limMsg)
                  * But, PMC will be informed about the error.
                  */
                 retStatus = eSIR_SME_BMPS_REQ_FAILED;
-                pmmBmpsUpdateWakeupReqFailureCnt(pMac);
             }
             break;
 
     }
 
     pMac->pmm.gPmmState = ePMM_STATE_BMPS_WAKEUP;
+    pmmUpdateWakeupStats(pMac);
 
     // turn on background scan
     pMac->sys.gSysEnableScanMode = true;
@@ -910,7 +923,7 @@ void pmmExitBmpsResponseHandler(tpAniSirGlobal pMac,  tpSirMsgQ limMsg)
     // send response to PMC
    if(IS_FEATURE_SUPPORTED_BY_FW(SLM_SESSIONIZATION) )
    {
-       limSendSmeRsp(pMac, eWNI_PMC_EXIT_BMPS_RSP, retStatus,
+       limSendSmeRsp(pMac, eWNI_PMC_EXIT_BMPS_RSP, retStatus, 
                   psessionEntry->smeSessionId, psessionEntry->transactionId);
    }
    else
@@ -1376,9 +1389,9 @@ void pmmUpdatePwrSaveStats(tpAniSirGlobal pMac)
 
     pMac->pmm.BmpsavgTimeAwake = ( ( (pMac->pmm.BmpsavgTimeAwake * pMac->pmm.BmpscntSleep) + TimeAwake ) / (pMac->pmm.BmpscntSleep + 1) );
 
-*/
     pMac->pmm.BmpscntSleep++;
     return;
+*/
 }
 
 
@@ -1420,9 +1433,9 @@ void pmmUpdateWakeupStats(tpAniSirGlobal pMac)
 
         pMac->pmm.BmpsavgSleepTime = ( ( (pMac->pmm.BmpsavgSleepTime * pMac->pmm.BmpscntAwake) + SleepTime ) / (pMac->pmm.BmpscntAwake + 1) );
 
-*/
         pMac->pmm.BmpscntAwake++;
         return;
+*/
 }
 
 // --------------------------------------------------------------------
@@ -1587,8 +1600,6 @@ failure:
            rspStatus,
            pMac->pmm.gPmmState);)
 
-    pmmImpsUpdateSleepErrStats(pMac, rspStatus);
-
     pMac->pmm.gPmmState = nextState;
 
     limSendSmeRsp(pMac,
@@ -1642,7 +1653,7 @@ void pmmExitImpsRequestHandler (tpAniSirGlobal pMac)
     {
         // PE in invalid state 
         PELOGE(pmmLog(pMac, LOGE, 
-                      FL("pmmImps: Wakeup Req received in invalid state: %d"),
+                      FL("pmmImps: Wakeup Req received in invalid state: %x"),
                       pMac->pmm.gPmmState);)
 
         resultCode = eSIR_SME_INVALID_PMM_STATE;
@@ -1710,31 +1721,25 @@ void pmmExitImpsResponseHandler(tpAniSirGlobal pMac, eHalStatus rspStatus)
     case eHAL_STATUS_SUCCESS:
         {
             resultCode = eSIR_SME_SUCCESS;
-            pMac->pmm.gPmmState = ePMM_STATE_IMPS_WAKEUP;
-            PELOG2(pmmLog(pMac, LOG2,
+            PELOG2(pmmLog(pMac, LOG2, 
                           FL("pmmImps: Received WDA_EXIT_IMPS_RSP with Successful response from HAL"));)
-            //update power save statistics
-            pmmImpsUpdateWakeupStats(pMac);
         }
         break;
 
         default:
             {
                 resultCode = eSIR_SME_IMPS_REQ_FAILED;
-                /* Set the status back to IMPS SLEEP as we failed
-                 * to come out of sleep
-                 */
-                pMac->pmm.gPmmState = ePMM_STATE_IMPS_SLEEP;
                 PELOGW(pmmLog(pMac, LOGW, 
                               FL("pmmImps: Received WDA_EXIT_IMPS_RSP with Failure Status from HAL"));)
-                // update th power save error stats
-                pmmImpsUpdateWakeupErrStats(pMac, rspStatus);
             }
             break;
 
     }
 
+    pMac->pmm.gPmmState = ePMM_STATE_IMPS_WAKEUP;
 
+    //update power save statistics
+    pmmImpsUpdateWakeupStats(pMac);
 
     limSendSmeRsp(pMac,
                   eWNI_PMC_EXIT_IMPS_RSP,
@@ -1924,7 +1929,7 @@ void pmmExitUapsdRequestHandler(tpAniSirGlobal pMac)
     else
     {
         PELOGE(pmmLog(pMac, LOGE,
-            FL("pmmUapsd: Rcv EXIT_UAPSD from PMC in invalid state: %d"),
+            FL("pmmUapsd: Rcv EXIT_UAPSD from PMC in invalid state: %x"),
             pMac->pmm.gPmmState);)
 
         resultCode = eSIR_SME_INVALID_PMM_STATE;
@@ -2768,10 +2773,10 @@ void pmmImpsUpdatePwrSaveStats(tpAniSirGlobal pMac)
 
     pMac->pmm.ImpsAvgTimeAwake = ((pMac->pmm.ImpsAvgTimeAwake * pMac->pmm.ImpsCntSleep) + TimeAwake) / (pMac->pmm.ImpsCntSleep + 1);
 
-*/
     (pMac->pmm.ImpsCntSleep)++;
 
     return;
+*/
 }
 
 
@@ -2815,10 +2820,10 @@ void pmmImpsUpdateWakeupStats (tpAniSirGlobal pMac)
 
     pMac->pmm.ImpsAvgSleepTime = ( ( (pMac->pmm.ImpsAvgSleepTime * pMac->pmm.ImpsCntAwake) + SleepTime) / (pMac->pmm.ImpsCntAwake + 1));
 
-*/
     (pMac->pmm.ImpsCntAwake)++;
 
     return;
+*/
 }
 
 // Collects number of times error occurred while going to sleep mode
