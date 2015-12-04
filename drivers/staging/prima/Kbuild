@@ -557,6 +557,12 @@ CDEFINES :=	-DANI_BUS_TYPE_PLATFORM=1 \
                 -DWLAN_FEATURE_LINK_LAYER_STATS \
                 -DWLAN_FEATURE_EXTSCAN
 
+ifeq ($(CONFIG_USES_UTAG_WIFI_MAC),y)
+CDEFINES += -DMOTO_UTAGS_MAC
+else
+CDEFINES += -DWLAN_NV_OTA_UPGRADE
+endif
+
 ifneq ($(CONFIG_PRONTO_WLAN),)
 CDEFINES += -DWCN_PRONTO
 CDEFINES += -DWCN_PRONTO_V1
@@ -631,9 +637,6 @@ endif
 
 # enable the MAC Address auto-generation feature
 CDEFINES += -DWLAN_AUTOGEN_MACADDR_FEATURE
-
-# Moto read MACs from boot params instead of NV file
-CDEFINES += -DMOTO_UTAGS_MAC
 
 ifeq ($(CONFIG_WLAN_FEATURE_11W),y)
 CDEFINES += -DWLAN_FEATURE_11W
