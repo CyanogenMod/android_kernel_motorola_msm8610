@@ -53,4 +53,8 @@ config QCOM_TDLS
 	bool "Enable TDLS"
 	default n
 
+config USES_UTAG_WIFI_MAC
+	bool "Read WiFi MAC address from UTAGs"
+	default n
+
 endif # PRIMA_WLAN || PRONTO_WLAN
