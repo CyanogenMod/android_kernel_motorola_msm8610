@@ -45,6 +45,7 @@ static struct uid_entry *find_uid_entry(uid_t uid)
 {
 	struct uid_entry *uid_entry;
 	struct hlist_node *node;
+
 	hash_for_each_possible(hash_table, uid_entry, node, hash, uid) {
 		if (uid_entry->uid == uid)
 			return uid_entry;
@@ -75,8 +76,10 @@ static int uid_stat_show(struct seq_file *m, void *v)
 {
 	struct uid_entry *uid_entry;
 	struct task_struct *task;
-	unsigned long bkt;
 	struct hlist_node *node;
+	cputime_t utime;
+	cputime_t stime;
+	unsigned long bkt;
 
 	mutex_lock(&uid_lock);
 
@@ -95,8 +98,9 @@ static int uid_stat_show(struct seq_file *m, void *v)
 						__func__, task_uid(task));
 			return -ENOMEM;
 		}
-		uid_entry->active_utime += task->utime;
-		uid_entry->active_stime += task->stime;
+		task_times(task, &utime, &stime);
+		uid_entry->active_utime += utime;
+		uid_entry->active_stime += stime;
 	}
 	read_unlock(&tasklist_lock);
 
@@ -135,11 +139,10 @@ static ssize_t uid_remove_write(struct file *file,
 			const char __user *buffer, size_t count, loff_t *ppos)
 {
 	struct uid_entry *uid_entry;
-	struct hlist_node *tmp;
+	struct hlist_node *node, *tmp;
 	char uids[128];
 	char *start_uid, *end_uid = NULL;
 	long int uid_start = 0, uid_end = 0;
-	struct hlist_node *node;
 
 	if (count >= sizeof(uids))
 		count = sizeof(uids) - 1;
@@ -162,8 +165,8 @@ static ssize_t uid_remove_write(struct file *file,
 	mutex_lock(&uid_lock);
 
 	for (; uid_start <= uid_end; uid_start++) {
-		hash_for_each_possible_safe(hash_table, uid_entry, node,
-						   tmp, hash, uid_start) {
+		hash_for_each_possible_safe(hash_table, uid_entry, node, tmp,
+							hash, uid_start) {
 			hash_del(&uid_entry->hash);
 			kfree(uid_entry);
 		}
@@ -184,6 +187,7 @@ static int process_notifier(struct notifier_block *self,
 {
 	struct task_struct *task = v;
 	struct uid_entry *uid_entry;
+	cputime_t utime, stime;
 	uid_t uid;
 
 	if (!task)
@@ -197,8 +201,9 @@ static int process_notifier(struct notifier_block *self,
 		goto exit;
 	}
 
-	uid_entry->utime += task->utime;
-	uid_entry->stime += task->stime;
+	task_times(task, &utime, &stime);
+	uid_entry->utime += utime;
+	uid_entry->stime += stime;
 
 exit:
 	mutex_unlock(&uid_lock);
