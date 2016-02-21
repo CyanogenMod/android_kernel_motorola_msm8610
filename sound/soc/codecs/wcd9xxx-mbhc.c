@@ -457,11 +457,11 @@ static s16 wcd9xxx_get_current_v(struct wcd9xxx_mbhc *mbhc,
 	return ret;
 }
 
-void *wcd9xxx_mbhc_cal_btn_det_mp(
+const void *wcd9xxx_mbhc_cal_btn_det_mp(
 			    const struct wcd9xxx_mbhc_btn_detect_cfg *btn_det,
 			    const enum wcd9xxx_mbhc_btn_det_mem mem)
 {
-	void *ret = &btn_det->_v_btn_low;
+	const void *ret = &btn_det->_v_btn_low;
 
 	switch (mem) {
 	case MBHC_BTN_DET_GAIN:
@@ -2640,7 +2640,7 @@ static void wcd9xxx_mbhc_calc_thres(struct wcd9xxx_mbhc *mbhc)
 	s16 btn_mv = 0, btn_mv_sta[MBHC_V_IDX_NUM], btn_mv_dce[MBHC_V_IDX_NUM];
 	struct wcd9xxx_mbhc_btn_detect_cfg *btn_det;
 	struct wcd9xxx_mbhc_plug_type_cfg *plug_type;
-	u16 *btn_high;
+	const u16 *btn_high;
 	int i;
 
 	pr_debug("%s: enter\n", __func__);
@@ -3076,7 +3076,7 @@ static int wcd9xxx_is_false_press(struct wcd9xxx_mbhc *mbhc)
 static int wcd9xxx_determine_button(const struct wcd9xxx_mbhc *mbhc,
 				  const s32 micmv)
 {
-	s16 *v_btn_low, *v_btn_high;
+	const s16 *v_btn_low, *v_btn_high;
 	struct wcd9xxx_mbhc_btn_detect_cfg *btn_det;
 	int i, btn = -1;
 
@@ -3227,7 +3227,7 @@ irqreturn_t wcd9xxx_dce_handler(int irq, void *data)
 	u8 mbhc_status;
 	s16 dce_z, sta_z;
 	s32 stamv, stamv_s;
-	s16 *v_btn_high;
+	const s16 *v_btn_high;
 	struct wcd9xxx_mbhc_btn_detect_cfg *btn_det;
 	int btn = -1, meas = 0;
 	struct wcd9xxx_mbhc *mbhc = data;
@@ -3551,7 +3551,7 @@ static void wcd9xxx_update_mbhc_clk_rate(struct wcd9xxx_mbhc *mbhc, u32 rate)
 	u32 dce_wait, sta_wait;
 	u8 ncic, nmeas, navg;
 	void *calibration;
-	u8 *n_cic, *n_ready;
+	const u8 *n_cic, *n_ready;
 	struct wcd9xxx_mbhc_btn_detect_cfg *btn_det;
 	u8 npoll = 4, nbounce_wait = 30;
 	struct snd_soc_codec *codec = mbhc->codec;
@@ -3756,7 +3756,7 @@ static void wcd9xxx_mbhc_cal(struct wcd9xxx_mbhc *mbhc)
 static void wcd9xxx_mbhc_setup(struct wcd9xxx_mbhc *mbhc)
 {
 	int n;
-	u8 *gain;
+	const u8 *gain;
 	struct wcd9xxx_mbhc_general_cfg *generic;
 	struct wcd9xxx_mbhc_btn_detect_cfg *btn_det;
 	struct snd_soc_codec *codec = mbhc->codec;

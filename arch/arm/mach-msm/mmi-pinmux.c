@@ -36,7 +36,7 @@ static int msm_pinmux_install(struct device_node *node)
 	struct device_node *child;
 	struct gpiomux_setting s[GPIOMUX_NSETTINGS];
 	struct msm_gpiomux_config c;
-	enum msm_gpiomux_setting which;  /* active or suspended */
+	enum msm_gpiomux_setting which = GPIOMUX_SUSPENDED; /* active or suspended */
 
 
 	rc = of_property_read_u32(node, "qcom,pin-num", &gpio);
