@@ -22,14 +22,14 @@
 			qcom,active@0 {
 				qcom,func = <0>;  /* gpio_in_out(0)         */
 				qcom,pull = <3>;  /* up                     */
-				qcom,drv = <0>;   /* 2ma                    */
-				qcom,dir = <1>;   /* GPIOMUX_OUT_HIGH       */
+				qcom,drv = <2>;   /* 6ma                    */
+				qcom,dir = <0>;   /* input                  */
 			};
 			qcom,suspend@1 {
 				qcom,func = <0>;  /* gpio_in_out(0)         */
-				qcom,pull = <3>;  /* up                     */
-				qcom,drv = <0>;   /* 2ma                    */
-				qcom,dir = <2>;   /* GPIOMUX_OUT_LOW        */
+				qcom,pull = <1>;  /* down                   */
+				qcom,drv = <2>;   /* 6ma                    */
+				qcom,dir = <0>;   /* input                  */
 			};
 		};
 
@@ -39,12 +39,12 @@
 			qcom,active@0 {
 				qcom,func = <0>;  /* gpio_in_out(1)         */
 				qcom,pull = <3>;  /* up                     */
-				qcom,drv = <0>;   /* 2ma                    */
+				qcom,drv = <3>;   /* 8ma                    */
 				qcom,dir = <0>;   /* input                  */
 			};
 			qcom,suspend@1 {
 				qcom,func = <0>;  /* gpio_in_out(1)         */
-				qcom,pull = <3>;  /* up                     */
+				qcom,pull = <1>;  /* down                   */
 				qcom,drv = <0>;   /* 2ma                    */
 				qcom,dir = <0>;   /* input                  */
 			};
