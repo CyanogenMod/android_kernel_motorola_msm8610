@@ -350,6 +350,12 @@ KALLSYMS	= scripts/kallsyms
 PERL		= perl
 CHECK		= sparse
 
+# arm-linux-androidkernel-strip doesn't exist, but arm-linux-androideabi-strip does
+STRIP_EXISTS := $(shell $(STRIP) -h 1>&2 2> /dev/null; echo $$?)
+ifneq ($(STRIP_EXISTS),0)
+STRIP = arm-linux-androideabi-strip
+endif
+
 # Use the wrapper for the compiler.  This wrapper scans for new
 # warnings and causes the build to stop upon encountering them.
 CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
